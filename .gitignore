@@ -1,0 +1,46 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse, IntelliJ IDEA, NetBeans
+*.log
+*.swp
+*.iml
+*.ipr
+*.iws
+.idea/
+*.class
+*.project
+*.classpath
+.settings/
+target/
+out/
+bin/
+nb-configuration.xml
+
+# Spring Boot
+spring.log
+
+# Logs
+logs/
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Others
+*.env

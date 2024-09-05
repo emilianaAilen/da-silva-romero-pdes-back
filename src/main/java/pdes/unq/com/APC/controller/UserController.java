@@ -3,6 +3,7 @@ package pdes.unq.com.APC.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,24 +25,28 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-     @PostMapping("/create")
+    @CrossOrigin(origins = "http://localhost:3000")
+    @PostMapping("/create")
     public ResponseEntity<UserResponse> crearUsuario(@RequestBody UserRequest userRequest) {
         UserResponse res = userService.validateAndSaveUser(userRequest);
        return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
         @GetMapping("/read/{email}")
     public ResponseEntity<UserResponse> getUsuario(@PathVariable String email) {
         UserResponse res = userService.getUserByEmail(email);
        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @DeleteMapping("/delete/{email}")
     public ResponseEntity<String> deleteUsuario(@PathVariable String email) {
         userService.deleteUserByEmail(email);
        return new ResponseEntity<>("Usuario eliminado", HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PatchMapping("/update/{email}")
     public ResponseEntity<UserResponse> updateUsuario(@PathVariable String email,
     @RequestBody UserRequest updatedUser) {

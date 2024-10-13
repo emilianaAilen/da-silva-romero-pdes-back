@@ -1,4 +1,4 @@
-package pdes.unq.com.APC.data;
+package pdes.unq.com.APC.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

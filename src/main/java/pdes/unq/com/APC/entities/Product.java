@@ -2,7 +2,6 @@ package pdes.unq.com.APC.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 

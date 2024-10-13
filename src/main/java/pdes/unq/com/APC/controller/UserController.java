@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import pdes.unq.com.APC.data.ErrorResponse;
 import pdes.unq.com.APC.entities.User;
-import pdes.unq.com.APC.exceptions.UserNotFoundException;
 import pdes.unq.com.APC.interfaces.user.UserRequest;
 import pdes.unq.com.APC.interfaces.user.UserResponse;
 import pdes.unq.com.APC.services.UserService;

@@ -24,7 +24,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven
-      run: mvn clean install -Dspring.profiles.active=test  # Usa el perfil de H2 para pruebas
+      run: mvn clean install -Dspring.profiles.active=test 
 
     - name: Run tests
       run: mvn test -Dspring.profiles.active=test  # Ejecuta los tests con H2

@@ -25,6 +25,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: pass
+      mercadolibre.api.token: ${MERCADO_LIBRE_TOKEN}
+      mercadolibre.api.base-url: ${MERCADO_LIBRE_BASE_URL}
+
     depends_on:
       - db
     networks:

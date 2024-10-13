@@ -30,17 +30,17 @@ La empresa Mercado Libre le solicita a una universidad pública el desarrollo de
 
 2. **Instalacion de dependencias**
     ```bash
-    mvn clean install
+    mvn clean install -Dmercadolibre.api.token=<tu_token_meli> -Dmercadolibre.api.base-url=<meli.base-url>
     ```
 
 2. **Correr la aplicacion**
     ```bash
-    mvn spring-boot:run
+    mvn spring-boot:run -Dspring-boot.run.profiles=dev 
     ```
     Tambien pueden usar el run el IDE a eleccion.
 
-3. **Correr la Aplicacion mediante DOCKER-COMPOSE
-   1. **Corremos docker componse 
+3. **Correr la Aplicacion mediante DOCKER-COMPOSE**
+   1. **Corremos docker componse** 
         ```bash
         docker-compose up 
         ```

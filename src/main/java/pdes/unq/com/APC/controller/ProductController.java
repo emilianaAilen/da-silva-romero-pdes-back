@@ -34,6 +34,7 @@ public class ProductController {
     @GetMapping("/search")
     public ResponseEntity<?> getProducts(@RequestParam("query") @Valid @NotEmpty @Size(max = 20) String queryParam) {
         List<ProductsResponse> res = productService.getProducts(queryParam);
+        // algo
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

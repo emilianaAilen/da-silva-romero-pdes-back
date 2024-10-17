@@ -2,7 +2,6 @@ package pdes.unq.com.APC.external_services;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,7 +9,6 @@ import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse.Result;
 import pdes.unq.com.APC.exceptions.ExternalServiceException;
-import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -49,8 +47,8 @@ public class MercadoLibreService {
         return categories;
     }
 
-    public List<Result> getProductsByCategories(String category){
-        String url = String.format("/sites/MLA/search?category=%s&status=active&limit=10", category);
+    public List<Result> getProducts(String query){
+        String url ="/sites/" + SITE_ARG + "/search?q=" + query;
 
         return webClient.get()
         .uri(url)

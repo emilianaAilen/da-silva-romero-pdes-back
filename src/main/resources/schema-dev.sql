@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE "user_manager" (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Genera un UUID automáticamente
     username VARCHAR(50) NOT NULL,

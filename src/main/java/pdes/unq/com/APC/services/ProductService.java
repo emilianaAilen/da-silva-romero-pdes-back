@@ -22,8 +22,8 @@ public class ProductService {
        return  mercadoLibreService.getCategories();
     }
 
-    public List<ProductsResponse> getProductsByCategory(String category){
-       List<Result> meliProducts =  mercadoLibreService.getProductsByCategories(category);
+    public List<ProductsResponse> getProducts(String query){
+       List<Result> meliProducts =  mercadoLibreService.getProducts(query);
 
        return meliProducts.stream().map(result -> new ProductsResponse(
             result.getId(),

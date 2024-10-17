@@ -8,8 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.services.ProductService;
@@ -27,9 +31,9 @@ public class ProductController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-    @GetMapping("/search/{category}")
-    public ResponseEntity<?> GetProductsByCategories(@PathVariable String category) {
-        List<ProductsResponse> res = productService.getProductsByCategory(category);
+    @GetMapping("/search")
+    public ResponseEntity<?> getProducts(@RequestParam("query") @Valid @NotEmpty @Size(max = 20) String queryParam) {
+        List<ProductsResponse> res = productService.getProducts(queryParam);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

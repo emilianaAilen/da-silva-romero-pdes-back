@@ -12,7 +12,7 @@ import pdes.unq.com.APC.repositories.UserRepository;
 
 @Service
 public class UserService {
-    
+
     @Autowired
     private UserRepository userRepository;
 
@@ -29,8 +29,8 @@ public class UserService {
         try {
             User savedUser = userRepository.save(userToSave);
             userResponse.setId(savedUser.getId().toString());
-        }catch(DataAccessException e) {
-            System.out.println("creating user Error: "+  e.getMessage());
+        } catch (DataAccessException e) {
+            System.out.println("creating user Error: " + e.getMessage());
             throw new RuntimeException("Error al guardar el usuario: " + e.getMessage(), e);
         }
         return userResponse;
@@ -53,7 +53,7 @@ public class UserService {
 
     // Método para actualizar un usuario existente
     public User updateUser(String email, UserRequest userRequest) {
-      // Buscar el usuario por email
+        // Buscar el usuario por email
         User existingUser = userRepository.findByEmail(email);
 
         if (existingUser == null) {
@@ -77,21 +77,20 @@ public class UserService {
         existingUser.setUpdatedAt(LocalDateTime.now());
         User updatedUser = userRepository.save(existingUser);
 
-       return updatedUser;
+        return updatedUser;
     }
 
     public User getUserByEmail(String email) {
-       try {
+        try {
             User userToReturn = userRepository.findByEmail(email);
             if (userToReturn == null) {
                 throw new UserNotFoundException("User with email " + email + " not found.");
             }
             return userToReturn;
 
-       }catch(DataAccessException e){
-        System.out.println("getting user by email Error: "+  e.getMessage());
-        throw new RuntimeException("Error getting user by email: " + e.getMessage(), e);
-       }
+        } catch (DataAccessException e) {
+            System.out.println("getting user by email Error: " + e.getMessage());
+            throw new RuntimeException("Error getting user by email: " + e.getMessage(), e);
+        }
     }
 }
-

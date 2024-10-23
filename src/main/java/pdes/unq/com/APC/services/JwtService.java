@@ -16,7 +16,6 @@ public class JwtService {
   private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
   private static final long EXPIRATION_TIME = 43200000;
 
-  // Genera un JWT token
   public String generateToken(User user) {
     return Jwts.builder()
         .setSubject(user.getEmail())

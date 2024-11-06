@@ -1,6 +1,7 @@
 package pdes.unq.com.APC.services;
 
 import pdes.unq.com.APC.entities.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -28,12 +29,17 @@ public class JwtService {
         .compact();
   }
 
-  public String validateToken(String token) {
-    return Jwts.parserBuilder()
+  public Map<String, Object> validateToken(String token) {
+    Claims claims = Jwts.parserBuilder()
         .setSigningKey(SECRET_KEY)
         .build()
         .parseClaimsJws(token)
-        .getBody()
-        .getSubject();
+        .getBody();
+
+    // Retornamos los claims como un mapa
+    return Map.of(
+        "email", claims.getSubject(),
+        "name", claims.get("name"),
+        "role", claims.get("role"));
   }
 }

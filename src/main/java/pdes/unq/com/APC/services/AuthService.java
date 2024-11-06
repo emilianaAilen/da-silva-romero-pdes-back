@@ -3,9 +3,11 @@ package pdes.unq.com.APC.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.JwtException;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.exceptions.UserNotFoundException;
 import pdes.unq.com.APC.repositories.UserRepository;
+import java.util.Map;
 
 @Service
 public class AuthService {
@@ -31,6 +33,14 @@ public class AuthService {
       return jwtService.generateToken(user);
     }
 
-    throw new RuntimeException("Credenciales inválidas");
+    throw new RuntimeException("Invalid credentials");
+  }
+
+  public Map<String, Object> validateToken(String token) {
+    try {
+      return jwtService.validateToken(token);
+    } catch (JwtException e) {
+      throw new RuntimeException("Invalid token", e);
+    }
   }
 }

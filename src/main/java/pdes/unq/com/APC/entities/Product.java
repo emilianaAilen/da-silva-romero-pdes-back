@@ -12,27 +12,31 @@ public class Product {
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, length = 300)
+    @Column(name = "description", nullable = false, length = 300)
     private String description;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "category", nullable = false, length = 50)
     private String category;
 
-    @Column(nullable = false)
+    @Column(name = "price", nullable = false)
     private double price;
 
-    @Column(nullable = false)
+    @Column(name = "external_item_id", nullable = false, length = 1000, columnDefinition = "VARCHAR(1000)")
+    private String externalItemID;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(nullable = true)
+    @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
     public Product() {}

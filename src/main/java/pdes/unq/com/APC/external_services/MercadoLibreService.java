@@ -3,13 +3,14 @@ package pdes.unq.com.APC.external_services;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
+import pdes.unq.com.APC.dtos.mercadoLibre.DescriptionItem;
+import pdes.unq.com.APC.dtos.mercadoLibre.Item;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse.Result;
+import pdes.unq.com.APC.entities.Product;
 import pdes.unq.com.APC.exceptions.ExternalServiceException;
 import reactor.core.publisher.Mono;
 
@@ -26,11 +27,34 @@ public class MercadoLibreService {
         this.tokenService = tokenService;
     }
 
-    public Mono<String> getProductById(String productId) {
+    public Product getProductById(String productId) {
+        String url = "/items/"+ productId;
+
         return webClient.get()
-                .uri("/items/{productId}", productId)
-                .retrieve()
-                .bodyToMono(String.class);
+            .uri(url)
+            .headers(headers -> {
+                headers.setBearerAuth(tokenService.getAccessToken());
+            })
+            .retrieve()
+            .onStatus(HttpStatusCode::isError, clientResponse ->
+            clientResponse.bodyToMono(String.class).flatMap(errorBody -> {
+                HttpStatusCode status = clientResponse.statusCode();
+                if(status.equals(401)){
+                    tokenService.refreshToken();
+                }
+                String errorMessage = String.format("External service error. Status: %s, Body: %s", status, errorBody);
+                return Mono.error(new ExternalServiceException(status, errorMessage));
+            }))
+            .bodyToMono(Item.class) // Obtener la respuesta completa
+            .map(item -> {
+                Product product = new Product();
+                product.setCategory(item.getCategory_id());
+                product.setName(item.getTitle());
+                product.setPrice(item.getPrice());
+                product.setExternalItemID(productId);
+                return product;
+            }) 
+            .block();
     }
 
     public  List<Category> getCategories(){
@@ -58,8 +82,6 @@ public class MercadoLibreService {
     }
 
     public List<Result> getProducts(String query){
-        System.err.println("getProducts");
-
         String url ="/sites/" + SITE_ARG + "/search?q=" + query;
 
         return webClient.get()
@@ -82,6 +104,30 @@ public class MercadoLibreService {
         )
         .bodyToMono(SearchProductsResponse.class) // Obtener la respuesta completa
         .map(searchResponse -> searchResponse.getResults()) // Extraer solo los resultados
+        .block();
+    }
+
+    public String getDescriptionFromProduct(String itemID){
+        String url ="/items/"+ itemID + "/description";
+        return webClient.get()
+        .uri(url)
+        .headers(headers -> {
+            headers.setBearerAuth( "Bearer " + tokenService.getAccessToken());
+        })
+        .retrieve()
+        .onStatus(HttpStatusCode::isError, clientResponse ->
+        clientResponse.bodyToMono(String.class).flatMap(errorBody -> {
+            HttpStatusCode status = clientResponse.statusCode();
+            if(status.equals(401)){
+                tokenService.refreshToken();
+            }
+            String errorMessage = String.format("External service error. Status: %s, Body: %s", status, errorBody);
+            return Mono.error(new ExternalServiceException(status, errorMessage));
+        }))
+        .bodyToMono(DescriptionItem.class) // Obtener la respuesta completa
+        .map(descriptionItem -> {
+          return descriptionItem.getPlain_text();
+        }) 
         .block();
     }
 }

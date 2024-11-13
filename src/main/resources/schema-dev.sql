@@ -14,9 +14,10 @@ CREATE TABLE "user_manager" (
 CREATE TABLE IF NOT EXISTS product (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL UNIQUE,
-    description VARCHAR(300) NOT NULL,
+    description VARCHAR(3000) NOT NULL,
     category VARCHAR(50) NOT NULL,
     price NUMERIC NOT NULL,
+    external_item_id VARCHAR(1000) NOT NULL;
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
@@ -26,9 +27,9 @@ CREATE TABLE IF NOT EXISTS product_purchase (
     id UUID PRIMARY key DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     product_id UUID NOT NULL,
-    puntage INT NOT NULL,
+    puntage NUMERIC NOT NULL,
     price_buyed NUMERIC NOT NULL,
-    total_buyed INT NOT NULL,
+    total_buyed NUMERIC NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
@@ -38,4 +39,32 @@ CREATE TABLE IF NOT EXISTS product_purchase (
 
     -- Clave foránea para la tabla product
     CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES product (id)
+);
+
+CREATE TABLE IF NOT EXISTS product_favorite (
+    product_details_id UUID PRIMARY key DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    product_id UUID NOT NULL,
+    is_favorite BOOLEAN NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+
+    -- Clave foránea para la tabla user
+    CONSTRAINT fk_user_product_favorite FOREIGN KEY (user_id) REFERENCES user_manager (id),
+
+    -- Clave foránea para la tabla product
+    CONSTRAINT fk_product_favorite FOREIGN KEY (product_id) REFERENCES product (id)
+);
+
+CREATE TABLE IF NOT EXISTS comment (
+    comment_id UUID PRIMARY key DEFAULT gen_random_uuid(),
+    product_details_id UUID NOT NULL,
+    description VARCHAR(3000) NOT NULL,
+    likes NUMERIC NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+
+    -- Clave foránea para la tabla product_purchase
+    CONSTRAINT fk_product_purchase FOREIGN KEY (product_details_id) REFERENCES product_purchase (id)
 );

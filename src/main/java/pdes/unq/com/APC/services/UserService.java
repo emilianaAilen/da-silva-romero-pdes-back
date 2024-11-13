@@ -1,6 +1,9 @@
 package pdes.unq.com.APC.services;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -88,6 +91,20 @@ public class UserService {
             }
             return userToReturn;
 
+        } catch (DataAccessException e) {
+            System.out.println("getting user by email Error: " + e.getMessage());
+            throw new RuntimeException("Error getting user by email: " + e.getMessage(), e);
+        }
+    }
+
+    public User getUserById( String userID){
+        try {
+            UUID uuid = UUID.fromString(userID);
+            Optional<User> userToReturn = userRepository.findById(uuid);
+            if (userToReturn.isEmpty()) {
+                throw new UserNotFoundException("User with id " + userID + " not found.");
+            }
+            return userToReturn.get();
         } catch (DataAccessException e) {
             System.out.println("getting user by email Error: " + e.getMessage());
             throw new RuntimeException("Error getting user by email: " + e.getMessage(), e);

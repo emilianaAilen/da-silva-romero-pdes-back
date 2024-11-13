@@ -21,22 +21,22 @@ public class ProductPurchase {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(nullable = false)
+    @Column(name = "puntage",nullable = false)
     private int puntage;
 
-    @Column(nullable = false)
+    @Column(name = "price_buyed",nullable = false)
     private double priceBuyed;
 
-    @Column(nullable = false)
+    @Column(name = "total_buyed",nullable = false)
     private int totalBuyed;
 
-    @Column(nullable = false)
+    @Column(name = "created_at",nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(nullable = true)
+    @Column(name = "deleted_at",nullable = true)
     private LocalDateTime deletedAt;
 
     public ProductPurchase() {}

@@ -2,12 +2,7 @@ package pdes.unq.com.APC.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import pdes.unq.com.APC.external_services.MercadoLibreTokenService;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 @Configuration

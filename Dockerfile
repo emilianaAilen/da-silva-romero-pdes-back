@@ -24,5 +24,22 @@ COPY --from=build /app/target/*.jar app.jar
 # Exponemos el puerto en el que correrá la aplicación (ajusta según sea necesario)
 EXPOSE 8080
 
+
+# Argumentos de construcción para pasar valores desde el build
+ARG MERCADO_LIBRE_TOKEN
+ARG MERCADO_LIBRE_BASE_URL
+ARG MERCADO_LIBRE_CLIENT_ID
+
+# Variables de entorno que usan los valores pasados en el build
+ENV MERCADO_LIBRE_TOKEN=${MERCADO_LIBRE_TOKEN}
+ENV MERCADO_LIBRE_BASE_URL=${MERCADO_LIBRE_BASE_URL}
+ENV MERCADO_LIBRE_CLIENT_ID=${MERCADO_LIBRE_CLIENT_ID}
+ENV MERCADO_LIBRE_CLIENT_SECRET=${MERCADO_LIBRE_CLIENT_SECRET}
+
+# Establecemos variables de entorno para la conexión a la base de datos
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+ENV SPRING_DATASOURCE_USERNAME=user
+ENV SPRING_DATASOURCE_PASSWORD=pass
+
 # Ejecutamos el entrypoirnt con los comandos para levantar la APP
 ENTRYPOINT ["java", "-jar", "app.jar"]

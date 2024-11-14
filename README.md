@@ -30,16 +30,31 @@ La empresa Mercado Libre le solicita a una universidad pública el desarrollo de
 
 2. **Instalacion de dependencias**
     ```bash
-    mvn clean install
+    mvn clean install -Dmercadolibre.api.token=<tu_token_meli> -Dmercadolibre.api.base-url=<meli.base-url>
     ```
 
 2. **Correr la aplicacion**
     ```bash
-    mvn spring-boot:run
+    mvn spring-boot:run -Dspring-boot.run.profiles=dev 
     ```
     Tambien pueden usar el run el IDE a eleccion.
 
-3. **Correr la aplicacion mediante DOCKER**
+3. **Correr la Aplicacion mediante DOCKER-COMPOSE**
+   1. **Corremos docker componse** 
+        ```bash
+        docker-compose up 
+        ```
+        Si solo queremos correr la app porque ya tenemos levantado postgrest usamos :
+        ```bash
+        docker-compose up --build app 
+        ```
+    2. Dar de baja el docker-compose
+        ```bash
+        docker-compose down
+        ```
+    De esta manera tendriamos levantada nuestra aplicacion con postgrest y la app configurada.
+
+4. **Correr la aplicacion mediante DOCKER**
    1.  **Corremos docker Build**
         ```bash
         docker build -t <nombre-de-la-imagen-a-eleccion>.<version> .

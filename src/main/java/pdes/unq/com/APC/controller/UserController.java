@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.interfaces.user.UserRequest;
 import pdes.unq.com.APC.interfaces.user.UserResponse;
 import pdes.unq.com.APC.services.UserService;
@@ -20,32 +20,31 @@ import pdes.unq.com.APC.services.UserService;
 @RequestMapping("/api/user")
 public class UserController {
 
-
     @Autowired
     private UserService userService;
 
-     @PostMapping("/create")
-    public ResponseEntity<UserResponse> crearUsuario(@RequestBody UserRequest userRequest) {
-        UserResponse res = userService.validateAndSaveUser(userRequest);
-       return new ResponseEntity<>(res, HttpStatus.CREATED);
+    @PostMapping("/create")
+    public ResponseEntity<?> crearUsuario(@RequestBody UserRequest userRequest) {
+        UserResponse savedUser = userService.validateAndSaveUser(userRequest);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
-        @GetMapping("/read/{email}")
-    public ResponseEntity<UserResponse> getUsuario(@PathVariable String email) {
-        UserResponse res = userService.getUserByEmail(email);
-       return new ResponseEntity<>(res, HttpStatus.OK);
+    @GetMapping("/read/{email}")
+    public ResponseEntity<?> getUsuario(@PathVariable String email) {
+        User res = userService.getUserByEmail(email);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{email}")
-    public ResponseEntity<String> deleteUsuario(@PathVariable String email) {
+    public ResponseEntity<?> deleteUsuario(@PathVariable String email) {
         userService.deleteUserByEmail(email);
        return new ResponseEntity<>("Usuario eliminado", HttpStatus.OK);
     }
 
     @PatchMapping("/update/{email}")
-    public ResponseEntity<UserResponse> updateUsuario(@PathVariable String email,
+    public ResponseEntity<?> updateUsuario(@PathVariable String email,
     @RequestBody UserRequest updatedUser) {
-       UserResponse res = userService.updateUser(email,updatedUser);
+       User res = userService.updateUser(email,updatedUser);
        return new ResponseEntity<>(res, HttpStatus.OK);
     }
     

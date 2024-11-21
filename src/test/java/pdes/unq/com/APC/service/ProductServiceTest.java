@@ -2,8 +2,10 @@ package pdes.unq.com.APC.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,15 +20,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse.Result;
 import pdes.unq.com.APC.entities.Product;
+import pdes.unq.com.APC.entities.ProductComment;
 import pdes.unq.com.APC.entities.ProductPurchase;
 import pdes.unq.com.APC.entities.User;
+import pdes.unq.com.APC.exceptions.ProductPurchaseNotFoundException;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
+import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
 import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
+import pdes.unq.com.APC.repositories.ProductCommentRepository;
 import pdes.unq.com.APC.repositories.ProductPurchaseRepository;
 import pdes.unq.com.APC.repositories.ProductRepository;
 import pdes.unq.com.APC.services.ProductService;
@@ -42,6 +49,9 @@ public class ProductServiceTest {
     private ProductPurchaseRepository productPurchaseRepository;
 
     @Mock
+    private ProductCommentRepository productCommentRepository;
+
+    @Mock
     private MercadoLibreService mercadoLibreService;
 
     @Mock
@@ -51,8 +61,13 @@ public class ProductServiceTest {
     private ProductService productService;
     
     private Product product;
-    private ProductPurchaseRequest purchaseRequest;
     private User user;
+    private ProductPurchase productPurchase;
+    private ProductComment productComment;
+
+    private ProductPurchaseRequest purchaseRequest;
+    private ProductCommentRequest productCommentRequest;
+
 
     @BeforeEach
     public void setUp() {
@@ -69,6 +84,27 @@ public class ProductServiceTest {
         purchaseRequest.setPriceBuyed(100);
         purchaseRequest.setPuntage(5);
         purchaseRequest.setCantStockBuyed(1);
+
+
+        UUID productPurchaseId = UUID.randomUUID();
+        productCommentRequest = new ProductCommentRequest();
+        productCommentRequest.setDescription("an description");
+        productCommentRequest.setLikes(5);
+        productCommentRequest.setPurchaseProductId(productPurchaseId.toString());
+
+        productPurchase = new ProductPurchase();
+        productPurchase.setId(productPurchaseId);
+        productPurchase.setPriceBuyed(150);
+        productPurchase.setProduct(product);
+        productPurchase.setPuntage(10);
+        productPurchase.setTotalBuyed(15);
+        productPurchase.setUser(user);
+
+
+        productComment = new ProductComment();
+        productComment.setDescription("an description");
+        productComment.setLikes(5);
+        productComment.setProductPurchase(productPurchase);
     }
 
     @Test
@@ -133,4 +169,29 @@ public class ProductServiceTest {
         verify(productPurchaseRepository, times(1)).save(any(ProductPurchase.class));
     }
 
+    @Test
+    public void testProductCommentSuccefully(){
+        when(productPurchaseRepository.findById(productPurchase.getId())).thenReturn(Optional.of(productPurchase));
+        when(productCommentRepository.save(productComment)).thenReturn(productComment);
+
+        productService.commentProduct(productCommentRequest);
+
+        verify(productPurchaseRepository, times(1)).findById(productPurchase.getId());
+        verify(productCommentRepository, times(1)).save(productComment);
+    }
+
+    @Test
+    public void testProductCommentProductPurchaseNotFound(){
+        when(productPurchaseRepository.findById(productPurchase.getId())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(ProductPurchaseNotFoundException.class, () -> {
+            productService.commentProduct(productCommentRequest);
+        });
+
+        // Opcional: Verifica el mensaje de la excepción
+        assertEquals("ProductPurchase with id " + productPurchase.getId().toString() +" not found.", exception.getMessage());
+
+        verify(productPurchaseRepository, times(1)).findById(productPurchase.getId());
+        verify(productCommentRepository, never()).save(any());
+    }
 }

@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS comment (
     description VARCHAR(3000) NOT NULL,
     likes NUMERIC NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
 
     -- Clave foránea para la tabla product_purchase

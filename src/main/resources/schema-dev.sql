@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE "user_manager" (
+CREATE TABLE IF NOT EXISTS  "user_manager" (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Genera un UUID automáticamente
     username VARCHAR(50) NOT NULL,
     password VARCHAR(100) NOT NULL,
@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS comment (
     description VARCHAR(3000) NOT NULL,
     likes NUMERIC NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
 
     -- Clave foránea para la tabla product_purchase

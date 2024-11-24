@@ -29,11 +29,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse.Result;
 import pdes.unq.com.APC.entities.Product;
+import pdes.unq.com.APC.entities.ProductFavorite;
 import pdes.unq.com.APC.entities.ProductPurchase;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
 import pdes.unq.com.APC.interfaces.auth.LoginRequest;
+import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
 import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.user.UserRequest;
+import pdes.unq.com.APC.repositories.ProductFavoriteRepository;
 import pdes.unq.com.APC.repositories.ProductPurchaseRepository;
 import pdes.unq.com.APC.repositories.ProductRepository;
 import pdes.unq.com.APC.services.UserService;
@@ -51,6 +54,9 @@ public class ProductControllerIntegrationTest {
 
     @Autowired
     private ProductPurchaseRepository productPurchaseRepository;
+
+    @Autowired
+    private ProductFavoriteRepository productFavoriteRepository;
 
     @Autowired
     private UserService userService;
@@ -154,5 +160,21 @@ public class ProductControllerIntegrationTest {
         .queryParam("query", "motorola%256"))
         .andExpect(status().isOk())
         .andExpect(content().json("[{\"id\":\"ML12577\",\"tittle\":\"a title\",\"meliLink\":\"permalink...\",\"imageLink\":\"thimbnail\",\"price\":115000,\"currency\":\"ARS\",\"condition\":\"new\"}]"));
+    }
+
+    @Test
+    public void tetFavoriteProduct() throws Exception {
+        ProductFavoriteRequest productFavoriteRequest = new ProductFavoriteRequest("MLA12345", userIDCreated);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(baseUrl + "/favorite/{productId}","MLA12345")
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", token) 
+            .content(new ObjectMapper().writeValueAsString(productFavoriteRequest)))
+            .andExpect(status().isOk())
+            .andExpect(content().string("favorite product created successfully"));
+
+        List<ProductFavorite> favorites = productFavoriteRepository.findAll();
+        assertEquals(1, favorites.size());
+        assertEquals("Test Product", favorites.get(0).getProduct().getName());
     }
  }

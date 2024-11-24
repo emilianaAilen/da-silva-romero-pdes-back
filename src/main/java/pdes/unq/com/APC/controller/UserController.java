@@ -29,19 +29,19 @@ public class UserController {
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
-    @GetMapping("/read/{email}")
+    @GetMapping("/admin/read/{email}")
     public ResponseEntity<?> getUsuario(@PathVariable String email) {
         User res = userService.getUserByEmail(email);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{email}")
+    @DeleteMapping("/admin/delete/{email}")
     public ResponseEntity<?> deleteUsuario(@PathVariable String email) {
         userService.deleteUserByEmail(email);
        return new ResponseEntity<>("Usuario eliminado", HttpStatus.OK);
     }
 
-    @PatchMapping("/update/{email}")
+    @PatchMapping("/admin/update/{email}")
     public ResponseEntity<?> updateUsuario(@PathVariable String email,
     @RequestBody UserRequest updatedUser) {
        User res = userService.updateUser(email,updatedUser);

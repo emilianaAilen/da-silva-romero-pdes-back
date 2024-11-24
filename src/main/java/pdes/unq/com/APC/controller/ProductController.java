@@ -18,6 +18,7 @@ import jakarta.validation.constraints.Size;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
+import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
 import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.services.ProductService;
@@ -54,4 +55,12 @@ public class ProductController {
         productService.commentProduct(purchaseRequest);
         return new ResponseEntity<>("comment product created successfully", HttpStatus.OK);
     }
+
+    @PostMapping("/favorite/{productExternalId}")
+    public ResponseEntity<?> AddFavoriteProduct(@PathVariable("productExternalId") String productExternalId, @RequestBody ProductFavoriteRequest productFavoriteRequest){
+        productFavoriteRequest.setProductExternalId(productExternalId);
+        productService.addFavoriteProduct(productFavoriteRequest);
+        return new ResponseEntity<>("favorite product created successfully", HttpStatus.OK);
+    }
+
 }

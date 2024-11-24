@@ -12,15 +12,17 @@ import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse.Result;
 import pdes.unq.com.APC.entities.Product;
 import pdes.unq.com.APC.entities.ProductComment;
+import pdes.unq.com.APC.entities.ProductFavorite;
 import pdes.unq.com.APC.entities.ProductPurchase;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.exceptions.ProductPurchaseNotFoundException;
-import pdes.unq.com.APC.exceptions.UserNotFoundException;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
 import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
+import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
 import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.repositories.ProductCommentRepository;
+import pdes.unq.com.APC.repositories.ProductFavoriteRepository;
 import pdes.unq.com.APC.repositories.ProductPurchaseRepository;
 import pdes.unq.com.APC.repositories.ProductRepository;
 
@@ -38,6 +40,9 @@ public class ProductService {
 
    @Autowired
    private ProductCommentRepository productCommentRepository;
+
+   @Autowired
+   private ProductFavoriteRepository productFavoriteRepository;
 
    @Autowired
    private UserService userService;
@@ -92,7 +97,7 @@ public class ProductService {
         }
     }
 
-    public void commentProduct(ProductCommentRequest productCommentRequest){
+   public void commentProduct(ProductCommentRequest productCommentRequest){
       ProductPurchase productPurchase = getProductPurchaseById(productCommentRequest.getPurchaseProductId());
 
       ProductComment productComment = new ProductComment();
@@ -106,7 +111,25 @@ public class ProductService {
          System.out.println("Error saving comment product: " + e.getMessage());
          throw new RuntimeException("Error saving comment product: " + e.getMessage(), e);
       }
-    }
+   }
+
+   public void addFavoriteProduct(ProductFavoriteRequest productFavoriteRequest){
+      Product product = getProductByIDAndSaveProduct(productFavoriteRequest.getProductExternalId());
+      
+      User user = userService.getUserById(productFavoriteRequest.getUserId());
+
+      ProductFavorite productFavorite = new ProductFavorite();
+      productFavorite.setProduct(product);
+      productFavorite.setUser(user);
+      productFavorite.setFavorite(true);
+
+      try {
+         productFavoriteRepository.save(productFavorite);
+      } catch (Exception e) {
+         System.out.println("Error saving product as favorite: " + e.getMessage());
+         throw new RuntimeException("Error saving product as favorite: " + e.getMessage(), e);
+      }
+   } 
 
     //Este metodo se encarga de obtener el producto de la base de datos, si no lo encuetra va por el servicio externo para traer la informacion necesaria para guardar en la BD.
    private Product getProductByIDAndSaveProduct(String externalItemId) {
@@ -125,6 +148,7 @@ public class ProductService {
    private  ProductPurchase getProductPurchaseById( String productPurchaseId){
         try {
             UUID uuid = UUID.fromString(productPurchaseId);
+            System.out.println("UUID" + productPurchaseId);
             Optional<ProductPurchase> productPurchaseToReturn = productPurchaseRepository.findById(uuid);
             if (productPurchaseToReturn.isEmpty()) {
                 throw new ProductPurchaseNotFoundException("ProductPurchase with id " + productPurchaseId + " not found.");

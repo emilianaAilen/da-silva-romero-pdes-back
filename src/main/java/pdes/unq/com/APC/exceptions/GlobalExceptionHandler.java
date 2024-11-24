@@ -15,6 +15,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ProductPurchaseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleProductPurchaseNotFoundException(ProductPurchaseNotFoundException e) {
+        ErrorResponse errorResponse = new ErrorResponse("product_purchase_not_found", e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException e) {
         ErrorResponse errorResponse = new ErrorResponse("Internal_error", e.getMessage());

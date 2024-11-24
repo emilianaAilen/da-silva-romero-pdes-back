@@ -3,6 +3,7 @@ package pdes.unq.com.APC.services;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -10,11 +11,16 @@ import org.springframework.stereotype.Service;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse.Result;
 import pdes.unq.com.APC.entities.Product;
+import pdes.unq.com.APC.entities.ProductComment;
 import pdes.unq.com.APC.entities.ProductPurchase;
 import pdes.unq.com.APC.entities.User;
+import pdes.unq.com.APC.exceptions.ProductPurchaseNotFoundException;
+import pdes.unq.com.APC.exceptions.UserNotFoundException;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
+import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
 import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
+import pdes.unq.com.APC.repositories.ProductCommentRepository;
 import pdes.unq.com.APC.repositories.ProductPurchaseRepository;
 import pdes.unq.com.APC.repositories.ProductRepository;
 
@@ -29,6 +35,9 @@ public class ProductService {
 
    @Autowired
    private ProductRepository productRepository;
+
+   @Autowired
+   private ProductCommentRepository productCommentRepository;
 
    @Autowired
    private UserService userService;
@@ -78,9 +87,25 @@ public class ProductService {
          try {
             return productRepository.save(productToSave);
         } catch (DataAccessException e) {
-            System.out.println("creando Product Error: " + e.getMessage());
-            throw new RuntimeException("Error al guardar el product: " + e.getMessage(), e);
+            System.out.println("Error saving product " + e.getMessage());
+            throw new RuntimeException("Error saving product: " + e.getMessage(), e);
         }
+    }
+
+    public void commentProduct(ProductCommentRequest productCommentRequest){
+      ProductPurchase productPurchase = getProductPurchaseById(productCommentRequest.getPurchaseProductId());
+
+      ProductComment productComment = new ProductComment();
+      productComment.setDescription(productCommentRequest.getDescription());
+      productComment.setLikes(productCommentRequest.getLikes());
+      productComment.setProductPurchase(productPurchase);
+
+      try{
+         productCommentRepository.save(productComment);
+      } catch (DataAccessException e) {
+         System.out.println("Error saving comment product: " + e.getMessage());
+         throw new RuntimeException("Error saving comment product: " + e.getMessage(), e);
+      }
     }
 
     //Este metodo se encarga de obtener el producto de la base de datos, si no lo encuetra va por el servicio externo para traer la informacion necesaria para guardar en la BD.
@@ -96,4 +121,18 @@ public class ProductService {
       }
       return productToReturn.get();
    }
+
+   private  ProductPurchase getProductPurchaseById( String productPurchaseId){
+        try {
+            UUID uuid = UUID.fromString(productPurchaseId);
+            Optional<ProductPurchase> productPurchaseToReturn = productPurchaseRepository.findById(uuid);
+            if (productPurchaseToReturn.isEmpty()) {
+                throw new ProductPurchaseNotFoundException("ProductPurchase with id " + productPurchaseId + " not found.");
+            }
+            return productPurchaseToReturn.get();
+        } catch (DataAccessException e) {
+            System.out.println("getting ProductPurchase by id Error: " + e.getMessage());
+            throw new RuntimeException("Error getting ProductPurchase by id: " + e.getMessage(), e);
+        }
+    }
 }

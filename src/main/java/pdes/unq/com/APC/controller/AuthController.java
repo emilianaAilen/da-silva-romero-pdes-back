@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.interfaces.auth.LoginRequest;
 import pdes.unq.com.APC.interfaces.auth.LoginResponse;
 import pdes.unq.com.APC.services.AuthService;
@@ -49,7 +50,7 @@ public class AuthController {
     }
 
     try {
-      Map<String, Object> userDetails = authService.validateToken(token);
+      User userDetails = authService.validateToken(token);
       return ResponseEntity.ok(userDetails);
     } catch (JwtException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");

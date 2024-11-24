@@ -36,9 +36,17 @@ public class AuthService {
     throw new RuntimeException("Invalid credentials");
   }
 
-  public Map<String, Object> validateToken(String token) {
+  public User validateToken(String token) {
     try {
-      return jwtService.validateToken(token);
+      Map<String, Object> claims = jwtService.validateToken(token);
+      String email = (String) claims.get("email"); // O el campo que uses en el token
+      User user = userRepository.findByEmail(email);
+
+      if (user == null) {
+          throw new UserNotFoundException("User not found for token");
+      }
+
+      return user; // Devuelve el usuario autenticado
     } catch (JwtException e) {
       throw new RuntimeException("Invalid token", e);
     }

@@ -3,9 +3,14 @@ package pdes.unq.com.APC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +21,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
@@ -23,6 +31,7 @@ import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse.Result;
 import pdes.unq.com.APC.entities.Product;
 import pdes.unq.com.APC.entities.ProductPurchase;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
+import pdes.unq.com.APC.interfaces.auth.LoginRequest;
 import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.user.UserRequest;
 import pdes.unq.com.APC.repositories.ProductPurchaseRepository;
@@ -32,6 +41,7 @@ import pdes.unq.com.APC.services.UserService;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Configuración compartida entre todos los tests
 public class ProductControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -50,9 +60,35 @@ public class ProductControllerIntegrationTest {
 
     String baseUrl = "/api/products";
     String userIDCreated;
+    String token;
 
+    @BeforeAll
+    public void setupLogin() throws Exception {
+        // Configuración inicial que solo se ejecuta una vez (como el login)
+        UserRequest userRequest = new UserRequest();
+        userRequest.setEmail("email_Test@test.com");
+        userRequest.setPassword("passtest");
+        userRequest.setRoleType("common");
+        userRequest.setUsername("usernameTest");
+
+        userIDCreated = userService.validateAndSaveUser(userRequest).getId();
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("email_Test@test.com");
+        loginRequest.setPassword("passtest");
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        token = "Bearer " + new ObjectMapper().readTree(response).get("token").asText();
+    }
+    
     @BeforeEach
-    public void setup() {
+    public void setupMocksAndData() {
+        // Limpieza de datos y configuración de mocks antes de cada test
         productPurchaseRepository.deleteAll();
         productRepository.deleteAll();
 
@@ -63,13 +99,6 @@ public class ProductControllerIntegrationTest {
         mockedProduct.setPrice(1000);
 
         Category mockCategory = new Category("MLA1055", "Electronics");
-
-        UserRequest userRequest = new UserRequest();
-        userRequest.setEmail("email_Test@test.com");
-        userRequest.setPassword("passtest");
-        userRequest.setRoleType("common");
-        userRequest.setUsername("usernameTest");
-        userIDCreated = userService.validateAndSaveUser(userRequest).getId();
 
         Result resultMeli = new Result();
         resultMeli.setId("ML12577");
@@ -86,6 +115,7 @@ public class ProductControllerIntegrationTest {
         when(mercadoLibreService.getProducts(anyString())).thenReturn(List.of(resultMeli));
     }
 
+
     @Test
     public void testPurchaseProduct() throws Exception {
         ProductPurchaseRequest purchaseRequest = new ProductPurchaseRequest();
@@ -97,6 +127,7 @@ public class ProductControllerIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post(baseUrl + "/purchase/{productId}","MLA12345")
             .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", token) 
             .content(new ObjectMapper().writeValueAsString(purchaseRequest)))
             .andExpect(status().isOk())
             .andExpect(content().string("purchase product created successfully"));
@@ -109,7 +140,8 @@ public class ProductControllerIntegrationTest {
     @Test
     public void TestGetCategories() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(baseUrl+ "/categories")
-            .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", token))
             .andExpect(status().isOk())
             .andExpect(content().json("[{\"id\":\"MLA1055\",\"name\":\"Electronics\"}]"));
     }
@@ -118,6 +150,7 @@ public class ProductControllerIntegrationTest {
     public void TestGetProducts() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(baseUrl+ "/search")
         .contentType(MediaType.APPLICATION_JSON)
+        .header("Authorization", token) 
         .queryParam("query", "motorola%256"))
         .andExpect(status().isOk())
         .andExpect(content().json("[{\"id\":\"ML12577\",\"tittle\":\"a title\",\"meliLink\":\"permalink...\",\"imageLink\":\"thimbnail\",\"price\":115000,\"currency\":\"ARS\",\"condition\":\"new\"}]"));

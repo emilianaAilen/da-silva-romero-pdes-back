@@ -16,6 +16,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
+import pdes.unq.com.APC.entities.User;
+import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
 import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.services.ProductService;
@@ -46,4 +48,10 @@ public class ProductController {
         return new ResponseEntity<>("purchase product created successfully", HttpStatus.OK);
     }
 
+    @PostMapping("/comment/{purchaseId}")
+    public ResponseEntity<?> commentProduct(@PathVariable("purchaseId") String purchaseId, @RequestBody ProductCommentRequest purchaseRequest){
+        purchaseRequest.setPurchaseProductId(purchaseId);
+        productService.commentProduct(purchaseRequest);
+        return new ResponseEntity<>("comment product created successfully", HttpStatus.OK);
+    }
 }

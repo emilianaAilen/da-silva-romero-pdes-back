@@ -79,6 +79,14 @@ La empresa Mercado Libre le solicita a una universidad pública el desarrollo de
         ```bash
         docker run -p 8080:8080 46c17b01ee4e
         ```
+5. **Uso de swagger**
+   Una vez que la aplicación esté corriendo, puedes acceder a la documentación interactiva de la API utilizando Swagger. Para consumir la API, solo debes abrir el siguiente enlace en tu navegador:
+
+    ```bash
+    http://localhost:8080/swagger-ui/index.html
+    ```
+    Allí podrás visualizar todos los endpoints disponibles, con sus descripciones, parámetros y ejemplos de respuesta. Swagger te permitirá interactuar directamente con la API, lo que facilita la prueba de los diferentes endpoints sin necesidad de herramientas adicionales.
+
 
 # API REST de Usuarios
 

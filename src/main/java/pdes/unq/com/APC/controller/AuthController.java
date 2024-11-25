@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.jsonwebtoken.JwtException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import pdes.unq.com.APC.entities.User;
@@ -26,6 +31,18 @@ public class AuthController {
   @Autowired
   private AuthService authService;
 
+  @Operation(summary = "User login and get auth token")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Login successful",
+                   content = @Content(mediaType = "application/json",
+                                      examples = @ExampleObject(value = "{ \"authToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\" }"))),
+      @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                   content = @Content(mediaType = "application/json",
+                                      examples = @ExampleObject(value = "\"Credenciales inválidas\""))),
+      @ApiResponse(responseCode = "500", description = "Internal server error",
+                   content = @Content(mediaType = "application/json",
+                                      examples = @ExampleObject(value = "{ \"status\": \"Internal_error\", \"message\": \"Error message\" }")))
+  })
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
     try {
@@ -43,6 +60,21 @@ public class AuthController {
     }
   }
 
+  @Operation(summary = "Get current session from auth token")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Session validated successfully",
+                   content = @Content(mediaType = "application/json",
+                                      examples = @ExampleObject(value = "{ \"id\": \"123e4567-e89b-12d3-a456-426614174000\", \"email\": \"user@example.com\", \"role\": \"admin\" }"))),
+      @ApiResponse(responseCode = "400", description = "Authorization cookie missing",
+                   content = @Content(mediaType = "application/json",
+                                      examples = @ExampleObject(value = "\"Authorization cookie missing\""))),
+      @ApiResponse(responseCode = "401", description = "Invalid token",
+                   content = @Content(mediaType = "application/json",
+                                      examples = @ExampleObject(value = "\"Invalid token\""))),
+      @ApiResponse(responseCode = "500", description = "Internal server error",
+                   content = @Content(mediaType = "application/json",
+                                      examples = @ExampleObject(value = "{ \"status\": \"Internal_error\", \"message\": \"Error message\" }")))
+  })
   @GetMapping("/session")
   public ResponseEntity<?> getCurrentSession(@CookieValue(value = "authToken", required = false) String token) {
     if (token == null) {

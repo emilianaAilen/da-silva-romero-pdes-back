@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,7 +88,7 @@ public class ProductControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        token = "Bearer " + new ObjectMapper().readTree(response).get("token").asText();
+        token = new ObjectMapper().readTree(response).get("token").asText();
     }
     
     @BeforeEach
@@ -126,7 +127,7 @@ public class ProductControllerIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post(baseUrl + "/favorite/{productId}","MLA123456")
             .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", token) 
+            .cookie(new Cookie("authToken", token)) 
             .content(new ObjectMapper().writeValueAsString(productFavoriteRequest)))
             .andExpect(status().isOk())
             .andExpect(content().string("favorite product created successfully"));
@@ -147,7 +148,7 @@ public class ProductControllerIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post(baseUrl + "/purchase/{productId}","MLA12345")
             .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", token) 
+            .cookie(new Cookie("authToken", token))
             .content(new ObjectMapper().writeValueAsString(purchaseRequest)))
             .andExpect(status().isOk())
             .andExpect(content().string("purchase product created successfully"));
@@ -161,7 +162,7 @@ public class ProductControllerIntegrationTest {
     public void TestGetCategories() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(baseUrl+ "/categories")
             .contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", token))
+            .cookie(new Cookie("authToken", token)))
             .andExpect(status().isOk())
             .andExpect(content().json("[{\"id\":\"MLA1055\",\"name\":\"Electronics\"}]"));
     }
@@ -170,7 +171,7 @@ public class ProductControllerIntegrationTest {
     public void TestGetProducts() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(baseUrl+ "/search")
         .contentType(MediaType.APPLICATION_JSON)
-        .header("Authorization", token) 
+        .cookie(new Cookie("authToken", token)) 
         .queryParam("query", "motorola%256"))
         .andExpect(status().isOk())
         .andExpect(content().json("[{\"id\":\"ML12577\",\"tittle\":\"a title\",\"meliLink\":\"permalink...\",\"imageLink\":\"thimbnail\",\"price\":115000,\"currency\":\"ARS\",\"condition\":\"new\"}]"));

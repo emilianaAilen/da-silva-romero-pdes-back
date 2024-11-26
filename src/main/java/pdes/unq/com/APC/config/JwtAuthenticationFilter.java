@@ -8,6 +8,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import pdes.unq.com.APC.services.AuthService;
@@ -25,19 +26,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
-        String token = request.getHeader("Authorization");
+            @SuppressWarnings("null") HttpServletRequest request,
+            @SuppressWarnings("null") HttpServletResponse response,
+            @SuppressWarnings("null") FilterChain filterChain) throws ServletException, IOException {
 
-        if (token != null && token.startsWith("Bearer ")) {
+        String token = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                System.out.println(cookie);
+                if ("authToken".equals(cookie.getName())) { 
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token != null) {
             try {
-                token = token.substring(7);
                 var userDetails = authService.validateToken(token);
-
-                String roleType = userDetails.getRoleType(); 
-
-                // Verifica la URL y aplica restricciones basadas en el roleType
+                String roleType = userDetails.getRoleType();
                 String requestURI = request.getRequestURI();
                 if (isAccessDenied(roleType, requestURI)) {
                     System.out.println("Access Denied");
@@ -46,9 +53,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, List.of());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, List.of());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JwtException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -61,15 +67,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-    * Verifica si el acceso está denegado según el roleType y la URL.
-    */
+     * Verifica si el acceso está denegado según el roleType y la URL.
+     */
     private boolean isAccessDenied(String roleType, String requestURI) {
         if (roleType.equals("admin")) {
-            return false; // Admin puede acceder a todo
+            return false; 
         }
         if (roleType.equals("common")) {
-            return requestURI.contains("admin"); // Bloquea rutas de admin
+            return requestURI.contains("admin");
         }
-        return true; 
+        return true;
     }
 }

@@ -88,7 +88,7 @@ public class ProductControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        token = "Bearer " + new ObjectMapper().readTree(response).get("token").asText();
+        token = new ObjectMapper().readTree(response).get("token").asText();
     }
     
     @BeforeEach

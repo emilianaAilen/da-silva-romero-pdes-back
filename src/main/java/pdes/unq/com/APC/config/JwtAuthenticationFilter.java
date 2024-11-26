@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 token = token.substring(7);
                 var userDetails = authService.validateToken(token);
 
-                String roleType = userDetails.getRoleType(); // Ajusta según tu implementación
+                String roleType = userDetails.getRoleType(); 
 
                 // Verifica la URL y aplica restricciones basadas en el roleType
                 String requestURI = request.getRequestURI();

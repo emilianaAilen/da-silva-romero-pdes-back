@@ -32,7 +32,8 @@ public class SecurityConfig {
         })
         .csrf(csrf -> csrf.disable())  // Deshabilita CSRF
         .authorizeHttpRequests(authz -> authz
-            .requestMatchers("/api/auth/**").permitAll()  // Permite acceso público a las rutas de autenticación
+            .requestMatchers("/api/auth/login", "/api/user/create").permitAll()  // Permite acceso público a las rutas de autenticación
+            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
             .anyRequest().authenticated()  // Requiere autenticación para otras solicitudes
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

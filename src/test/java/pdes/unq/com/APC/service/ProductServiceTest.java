@@ -26,14 +26,17 @@ import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.dtos.mercadoLibre.SearchProductsResponse.Result;
 import pdes.unq.com.APC.entities.Product;
 import pdes.unq.com.APC.entities.ProductComment;
+import pdes.unq.com.APC.entities.ProductFavorite;
 import pdes.unq.com.APC.entities.ProductPurchase;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.exceptions.ProductPurchaseNotFoundException;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
 import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
+import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
 import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.repositories.ProductCommentRepository;
+import pdes.unq.com.APC.repositories.ProductFavoriteRepository;
 import pdes.unq.com.APC.repositories.ProductPurchaseRepository;
 import pdes.unq.com.APC.repositories.ProductRepository;
 import pdes.unq.com.APC.services.ProductService;
@@ -50,6 +53,9 @@ public class ProductServiceTest {
 
     @Mock
     private ProductCommentRepository productCommentRepository;
+
+    @Mock
+    private ProductFavoriteRepository productFavoriteRepository;
 
     @Mock
     private MercadoLibreService mercadoLibreService;
@@ -193,5 +199,16 @@ public class ProductServiceTest {
 
         verify(productPurchaseRepository, times(1)).findById(productPurchase.getId());
         verify(productCommentRepository, never()).save(any());
+    }
+
+    @Test
+    public void testProductFavoriteSuccefully(){
+        when(productRepository.findByExternalItemID("MLA12345")).thenReturn(Optional.of(product));
+        when(userService.getUserById("user123")).thenReturn(user);
+
+        ProductFavoriteRequest productFavoriteRequest = new ProductFavoriteRequest("MLA12345", "user123");
+        productService.addFavoriteProduct(productFavoriteRequest);
+
+        verify(productFavoriteRepository, times(1)).save(any(ProductFavorite.class));
     }
 }

@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS product_purchase (
 );
 
 CREATE TABLE IF NOT EXISTS product_favorite (
-    product_details_id UUID PRIMARY key DEFAULT gen_random_uuid(),
+    product_favorite_id UUID PRIMARY key DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     product_id UUID NOT NULL,
     is_favorite BOOLEAN NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS product_favorite (
     CONSTRAINT fk_product_favorite FOREIGN KEY (product_id) REFERENCES product (id)
 );
 
-CREATE TABLE IF NOT EXISTS comment (
+CREATE TABLE IF NOT EXISTS product_comment (
     comment_id UUID PRIMARY key DEFAULT gen_random_uuid(),
     product_details_id UUID NOT NULL,
     description VARCHAR(3000) NOT NULL,

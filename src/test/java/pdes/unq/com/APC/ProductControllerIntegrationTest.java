@@ -32,8 +32,8 @@ import pdes.unq.com.APC.entities.ProductFavorite;
 import pdes.unq.com.APC.entities.ProductPurchase;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
 import pdes.unq.com.APC.interfaces.auth.LoginRequest;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
-import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.user.UserRequest;
 import pdes.unq.com.APC.repositories.ProductFavoriteRepository;
 import pdes.unq.com.APC.repositories.ProductPurchaseRepository;
@@ -146,7 +146,7 @@ public class ProductControllerIntegrationTest {
         purchaseRequest.setCantStockBuyed(2);
         purchaseRequest.setPuntage(5);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(baseUrl + "/purchase/{productId}","MLA12345")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/purchase/{productId}","MLA12345")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(new Cookie("authToken", token))
             .content(new ObjectMapper().writeValueAsString(purchaseRequest)))

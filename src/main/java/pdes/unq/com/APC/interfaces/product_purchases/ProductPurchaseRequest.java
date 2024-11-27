@@ -1,4 +1,4 @@
-package pdes.unq.com.APC.interfaces.products;
+package pdes.unq.com.APC.interfaces.product_purchases;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

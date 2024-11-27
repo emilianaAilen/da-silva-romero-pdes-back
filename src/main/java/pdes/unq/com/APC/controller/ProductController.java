@@ -22,10 +22,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
-import pdes.unq.com.APC.entities.User;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
 import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
-import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.services.ProductService;
 
@@ -95,44 +94,6 @@ public class ProductController {
     public ResponseEntity<?> getProducts(@RequestParam("query") @Valid @NotEmpty @Size(max = 20) String queryParam) {
         List<ProductsResponse> res = productService.getProducts(queryParam);
         return new ResponseEntity<>(res, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Purchase a product")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "purchase product created successfully", 
-                    content = @Content(mediaType = "application/json", 
-                                        examples = @ExampleObject(value = "\"purchase product created successfully\""))),
-        @ApiResponse(responseCode = "404", description = "Product not found", 
-                    content = @Content(mediaType = "application/json", 
-                                        examples = @ExampleObject(value = "{\"status\":\"product_Purchase_not_found\",\"message\":\"Product Purchase not found\"}"))),
-        @ApiResponse(responseCode = "500", description = "Internal server error", 
-                    content = @Content(mediaType = "application/json", 
-                                        examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
-    })
-    @PostMapping("/purchase/{productId}")
-    public ResponseEntity<?> purchaseProduct(@PathVariable("productId") String productId, @RequestBody ProductPurchaseRequest purchaseRequest){
-        purchaseRequest.setProductID(productId);
-        productService.purchaseProduct(purchaseRequest);
-        return new ResponseEntity<>("purchase product created successfully", HttpStatus.OK);
-    }
-
-    @Operation(summary = "Comment on a purchased product")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "comment product created successfully", 
-                    content = @Content(mediaType = "application/json", 
-                                        examples = @ExampleObject(value = "\"comment product created successfully\""))),
-        @ApiResponse(responseCode = "404", description = "Product not found", 
-                    content = @Content(mediaType = "application/json", 
-                                        examples = @ExampleObject(value = "{\"status\":\"product_not_found\",\"message\":\"Product not found\"}"))),
-        @ApiResponse(responseCode = "500", description = "Internal server error", 
-                    content = @Content(mediaType = "application/json", 
-                                        examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
-    })
-    @PostMapping("/comment/{purchaseId}")
-    public ResponseEntity<?> commentProduct(@PathVariable("purchaseId") String purchaseId, @RequestBody ProductCommentRequest purchaseRequest){
-        purchaseRequest.setPurchaseProductId(purchaseId);
-        productService.commentProduct(purchaseRequest);
-        return new ResponseEntity<>("comment product created successfully", HttpStatus.OK);
     }
 
     @Operation(summary = "Add product to favorites")

@@ -17,9 +17,11 @@ import pdes.unq.com.APC.entities.ProductPurchase;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.exceptions.ProductPurchaseNotFoundException;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseRequest;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseResponse;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductResponse;
 import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
 import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
-import pdes.unq.com.APC.interfaces.products.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.repositories.ProductCommentRepository;
 import pdes.unq.com.APC.repositories.ProductFavoriteRepository;
@@ -129,7 +131,15 @@ public class ProductService {
          System.out.println("Error saving product as favorite: " + e.getMessage());
          throw new RuntimeException("Error saving product as favorite: " + e.getMessage(), e);
       }
-   } 
+   }
+   
+   public List<ProductPurchaseResponse> getProductPurchasesFromUserId(String userId){
+      List<ProductPurchase> result = productPurchaseRepository.findByUserId( UUID.fromString(userId));
+
+      return result.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+   }
 
     //Este metodo se encarga de obtener el producto de la base de datos, si no lo encuetra va por el servicio externo para traer la informacion necesaria para guardar en la BD.
    private Product getProductByIDAndSaveProduct(String externalItemId) {
@@ -159,4 +169,32 @@ public class ProductService {
             throw new RuntimeException("Error getting ProductPurchase by id: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * Metodo que se encarga de mapear un ProducPurchase ( traido de la DB) a ProductPurchaseResponse con valores a devolver.
+     * @param productPurchase
+     * @return ProductPurchaseResponse 
+     */
+    private ProductPurchaseResponse mapToResponse(ProductPurchase productPurchase) {
+      ProductPurchaseResponse result = new ProductPurchaseResponse();
+      Product productFromDB = productPurchase.getProduct();
+      String priceStr =   String.valueOf(productFromDB.getPrice());
+      ProductResponse productResponse = new ProductResponse();
+
+      productResponse.setId(productFromDB.getId().toString());
+      productResponse.setCategory(productFromDB.getCategory());
+      productResponse.setDescription(productFromDB.getDescription());
+      productResponse.setExternal_item_id(productFromDB.getExternalItemID());
+      productResponse.setName(productFromDB.getName());
+      productResponse.setPrice(priceStr);
+
+      result.setId(productPurchase.getId().toString());
+      result.setUser_id(productPurchase.getUser().getId().toString());
+      result.setPrice_buyed(productPurchase.getPriceBuyed());
+      result.setPuntage(productPurchase.getPuntage());
+      result.setTotal_buyed(productPurchase.getTotalBuyed());
+      result.setProduct(productResponse);
+
+      return result;
+  }
 }

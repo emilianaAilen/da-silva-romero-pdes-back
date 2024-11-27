@@ -201,10 +201,12 @@ public class ProductServiceTest {
 
     @Test
     public void testProductFavoriteSuccefully(){
+        UUID userId = UUID.randomUUID();
+        when(productFavoriteRepository.findByProduct_ExternalItemIDAndUser_Id("MLA12345",userId)).thenReturn(Optional.empty());
         when(productRepository.findByExternalItemID("MLA12345")).thenReturn(Optional.of(product));
-        when(userService.getUserById("user123")).thenReturn(user);
+        when(userService.getUserById(userId.toString())).thenReturn(user);
 
-        ProductFavoriteRequest productFavoriteRequest = new ProductFavoriteRequest("MLA12345", "user123");
+        ProductFavoriteRequest productFavoriteRequest = new ProductFavoriteRequest("MLA12345", userId.toString());
         productService.addFavoriteProduct(productFavoriteRequest);
 
         verify(productFavoriteRepository, times(1)).save(any(ProductFavorite.class));

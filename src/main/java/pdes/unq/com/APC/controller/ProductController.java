@@ -97,8 +97,10 @@ public class ProductController {
                                         examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
     })
     @PostMapping("/favorite/{productExternalId}")
-    public ResponseEntity<?> AddFavoriteProduct(@PathVariable("productExternalId") String productExternalId, @RequestBody ProductFavoriteRequest productFavoriteRequest){
-        productFavoriteRequest.setProductExternalId(productExternalId);
+    public ResponseEntity<?> AddFavoriteProduct(@PathVariable("productExternalId") String productExternalId){
+        User user = getUserFromContext();
+        ProductFavoriteRequest productFavoriteRequest = new ProductFavoriteRequest(productExternalId, user.getId().toString());
+        
         productService.addFavoriteProduct(productFavoriteRequest);
         return new ResponseEntity<>("favorite product created successfully", HttpStatus.OK);
     }

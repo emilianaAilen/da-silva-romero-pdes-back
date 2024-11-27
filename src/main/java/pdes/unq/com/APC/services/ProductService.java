@@ -116,8 +116,13 @@ public class ProductService {
    }
 
    public void addFavoriteProduct(ProductFavoriteRequest productFavoriteRequest){
+      Optional<ProductFavorite> productFavoriteFromDB = productFavoriteRepository.findByProduct_ExternalItemIDAndUser_Id(productFavoriteRequest.getProductExternalId(),UUID.fromString(productFavoriteRequest.getUserId()));
+      if( productFavoriteFromDB.isPresent()){
+         System.out.println("Favorite product already exists for externalItemID:"+ productFavoriteRequest.getProductExternalId());
+         return;
+      }
+
       Product product = getProductByIDAndSaveProduct(productFavoriteRequest.getProductExternalId());
-      
       User user = userService.getUserById(productFavoriteRequest.getUserId());
 
       ProductFavorite productFavorite = new ProductFavorite();

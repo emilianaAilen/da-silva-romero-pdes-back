@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseResponse;
 import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
@@ -69,7 +70,11 @@ public class ProductPurchaseController {
 
     @Operation(summary = "Get products purchases by user id")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "comment product created successfully"),
+        @ApiResponse(responseCode = "200", description = "comment product created successfully", 
+                    content = @Content(
+                        mediaType = "application/json",
+                        array = @ArraySchema(schema = @Schema(implementation = ProductPurchaseResponse.class))
+                    )),
         @ApiResponse(responseCode = "500", description = "Internal server error", 
                     content = @Content(mediaType = "application/json", 
                                         examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))

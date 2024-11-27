@@ -116,8 +116,13 @@ public class ProductService {
    }
 
    public void addFavoriteProduct(ProductFavoriteRequest productFavoriteRequest){
+      Optional<ProductFavorite> productFavoriteFromDB = productFavoriteRepository.findByProduct_ExternalItemIDAndUser_Id(productFavoriteRequest.getProductExternalId(),UUID.fromString(productFavoriteRequest.getUserId()));
+      if( productFavoriteFromDB.isPresent()){
+         System.out.println("Favorite product already exists for externalItemID:"+ productFavoriteRequest.getProductExternalId());
+         return;
+      }
+
       Product product = getProductByIDAndSaveProduct(productFavoriteRequest.getProductExternalId());
-      
       User user = userService.getUserById(productFavoriteRequest.getUserId());
 
       ProductFavorite productFavorite = new ProductFavorite();
@@ -141,8 +146,20 @@ public class ProductService {
                 .collect(Collectors.toList());
    }
 
-    //Este metodo se encarga de obtener el producto de la base de datos, si no lo encuetra va por el servicio externo para traer la informacion necesaria para guardar en la BD.
-   private Product getProductByIDAndSaveProduct(String externalItemId) {
+   public List<ProductResponse> getFavoritesProductsByUserId(String userId){
+      List<ProductFavorite> res = productFavoriteRepository.findByUserId(UUID.fromString(userId));
+
+      return res.stream()
+                  .map(this::MapProductFavoriteToProductResponse)
+                  .collect(Collectors.toList());
+   }
+
+   /**
+    * Este metodo se encarga de obtener el producto de la base de datos, si no lo encuetra va por el servicio externo para traer la informacion necesaria para guardar en la BD.
+    * @param externalItemId
+    * @return Product
+    */
+    private Product getProductByIDAndSaveProduct(String externalItemId) {
       Optional<Product> productToReturn = productRepository.findByExternalItemID(externalItemId);
 
       if ( productToReturn.isEmpty()){
@@ -178,23 +195,44 @@ public class ProductService {
     private ProductPurchaseResponse mapToResponse(ProductPurchase productPurchase) {
       ProductPurchaseResponse result = new ProductPurchaseResponse();
       Product productFromDB = productPurchase.getProduct();
-      String priceStr =   String.valueOf(productFromDB.getPrice());
-      ProductResponse productResponse = new ProductResponse();
-
-      productResponse.setId(productFromDB.getId().toString());
-      productResponse.setCategory(productFromDB.getCategory());
-      productResponse.setDescription(productFromDB.getDescription());
-      productResponse.setExternal_item_id(productFromDB.getExternalItemID());
-      productResponse.setName(productFromDB.getName());
-      productResponse.setPrice(priceStr);
 
       result.setId(productPurchase.getId().toString());
       result.setUser_id(productPurchase.getUser().getId().toString());
       result.setPrice_buyed(productPurchase.getPriceBuyed());
       result.setPuntage(productPurchase.getPuntage());
       result.setTotal_buyed(productPurchase.getTotalBuyed());
-      result.setProduct(productResponse);
+      result.setProduct(mapProductToProductResponse(productFromDB));
 
       return result;
+  }
+
+  /**
+   * Metodo para mapear un ProductFavorite a un objeto de forma ProductResponse.
+   * @param productFavorite
+   * @return ProductResponse
+   */
+  private ProductResponse MapProductFavoriteToProductResponse(ProductFavorite productFavorite){
+   Product product = productFavorite.getProduct();
+
+   return mapProductToProductResponse(product);
+  }
+
+  /**
+   * Metodo que mapea un Product entity de la base de datos a un objeto de forma ProductReponse
+   * @param product
+   * @return ProductReponse
+   */
+  private ProductResponse mapProductToProductResponse(Product product){
+   ProductResponse result = new ProductResponse();
+   String priceStr =   String.valueOf(product.getPrice());
+
+   result.setCategory(product.getCategory());
+   result.setDescription(product.getDescription());
+   result.setExternal_item_id(product.getExternalItemID());
+   result.setName(product.getName());
+   result.setPrice(priceStr);
+   result.setId(product.getId().toString());
+
+   return result;
   }
 }

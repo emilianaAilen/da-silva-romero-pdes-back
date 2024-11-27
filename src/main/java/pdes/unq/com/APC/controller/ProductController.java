@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,16 +15,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
-import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseRequest;
-import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
+import pdes.unq.com.APC.entities.User;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductResponse;
 import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.services.ProductService;
@@ -38,17 +41,10 @@ public class ProductController {
     @Operation(summary = "Get all product categories")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved categories",
-                    content = @Content(mediaType = "application/json",
-                                        examples = @ExampleObject(value = "[\n" +
-                                                "    {\n" +
-                                                "        \"id\": \"MLA5725\",\n" +
-                                                "        \"name\": \"Electronics\"\n" +
-                                                "    },\n" +
-                                                "    {\n" +
-                                                "        \"id\": \"MLA1055\",\n" +
-                                                "        \"name\": \"Home Appliances\"\n" +
-                                                "    }\n" +
-                                                "]"))),
+                    content = @Content(
+                        mediaType = "application/json",
+                        array = @ArraySchema(schema = @Schema(implementation = Category.class))
+                    )),
         @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json",
                                         examples = @ExampleObject(value = "{\n" +
@@ -65,18 +61,10 @@ public class ProductController {
     @Operation(summary = "Search products by query")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Products retrieved successfully",
-                    content = @Content(mediaType = "application/json",
-                                        examples = @ExampleObject(value = "[\n" +
-                                                "    {\n" +
-                                                "        \"id\": \"MLA1446313689\",\n" +
-                                                "        \"tittle\": \"Motorola Edge 50 Fusion 5g 256 Gb Ante Rosa 8 Gb Ram\",\n" +
-                                                "        \"meliLink\": \"https://www.mercadolibre.com.ar/motorola-edge-50-fusion-5g-256-gb-ante-rosa-8-gb-ram/p/MLA36687807#wid=MLA1446313689&sid=unknown\",\n" +
-                                                "        \"imageLink\": \"http://http2.mlstatic.com/D_976666-MLU78414598365_082024-I.jpg\",\n" +
-                                                "        \"price\": 804534,\n" +
-                                                "        \"currency\": \"ARS\",\n" +
-                                                "        \"condition\": \"new\"\n" +
-                                                "    }\n" +
-                                                "]"))),
+        content = @Content(
+                mediaType = "application/json",
+                array = @ArraySchema(schema = @Schema(implementation = ProductsResponse.class))
+            )),
         @ApiResponse(responseCode = "404", description = "No products found",
                     content = @Content(mediaType = "application/json",
                                         examples = @ExampleObject(value = "{\n" +
@@ -113,6 +101,51 @@ public class ProductController {
         productFavoriteRequest.setProductExternalId(productExternalId);
         productService.addFavoriteProduct(productFavoriteRequest);
         return new ResponseEntity<>("favorite product created successfully", HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get products favorite by User id")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "List of favorite products retrieved successfully",
+            content = @Content(
+                mediaType = "application/json",
+                array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "User not found or no favorite products found", 
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(example = "{\"status\":\"user_not_found\",\"message\":\"No favorites found for the user\"}")
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500", 
+            description = "Internal server error", 
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(example = "{\"status\":\"internal_error\",\"message\":\"Unexpected error occurred\"}")
+            )
+        )
+    })
+    @GetMapping("/favorites")
+    public ResponseEntity<?> GetFavoritiesProductsByUserId(){
+        User user = getUserFromContext();
+
+        List<ProductResponse> res = productService.getFavoritesProductsByUserId(user.getId().toString());
+
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    private User getUserFromContext(){
+        User userDetails = null;
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            userDetails  = (User) authentication.getPrincipal();
+        }
+        return  userDetails;
     }
 
 }

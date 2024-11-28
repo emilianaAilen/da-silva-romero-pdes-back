@@ -26,6 +26,7 @@ import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductResponse;
 import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
+import pdes.unq.com.APC.interfaces.products.ProductFavoriteUsersResponse;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.services.ProductService;
 
@@ -138,6 +139,33 @@ public class ProductController {
 
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
+
+
+    @Operation(summary = "Get all products favorite by User")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "List of all favorite products retrieved successfully",
+            content = @Content(
+                mediaType = "application/json",
+                array = @ArraySchema(schema = @Schema(implementation = ProductFavoriteUsersResponse.class))
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500", 
+            description = "Internal server error", 
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(example = "{\"status\":\"internal_error\",\"message\":\"Unexpected error occurred\"}")
+            )
+        )
+    })
+    @GetMapping("/favorites/admin")
+    public ResponseEntity<?> GetFavoritesProductsByUsers(){
+        List<ProductFavoriteUsersResponse> res = productService.getAllFavoritesProductsByUsers();
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
 
     private User getUserFromContext(){
         User userDetails = null;

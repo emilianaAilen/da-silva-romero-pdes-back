@@ -14,4 +14,5 @@ public class Item {
     private double basePrice;
     private double originalPrice;
     private String currencyId;
+    private String thumbnail;
 }

@@ -30,6 +30,9 @@ public class Product {
     @Column(name = "external_item_id", nullable = false, length = 1000, columnDefinition = "VARCHAR(1000)")
     private String externalItemID;
 
+    @Column(name= "url", nullable = false, length= 1000, columnDefinition = "VARCHAR(1000)")
+    private String url;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

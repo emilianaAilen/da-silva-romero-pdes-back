@@ -81,7 +81,6 @@ public class ProductService {
       purchaseToSave.setTotalBuyed(productPurchaseRequest.getCantStockBuyed());
       purchaseToSave.setProduct(productReturn);
       purchaseToSave.setUser(user);
-
       try {
          productPurchaseRepository.save(purchaseToSave);
       }catch(DataAccessException e){
@@ -232,6 +231,7 @@ public class ProductService {
    result.setName(product.getName());
    result.setPrice(priceStr);
    result.setId(product.getId().toString());
+   result.setUrl_image(product.getUrl());
 
    return result;
   }

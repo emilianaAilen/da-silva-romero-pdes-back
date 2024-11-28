@@ -103,6 +103,7 @@ public class ProductControllerIntegrationTest {
         mockedProduct.setCategory("Electronics");
         mockedProduct.setName("Test Product");
         mockedProduct.setPrice(1000);
+        mockedProduct.setUrl("baseUrl");
 
         Category mockCategory = new Category("MLA1055", "Electronics");
 

@@ -52,6 +52,8 @@ public class MercadoLibreService {
                 product.setName(item.getTitle());
                 product.setPrice(item.getPrice());
                 product.setExternalItemID(productId);
+                product.setUrl(item.getThumbnail());
+
                 return product;
             }) 
             .block();

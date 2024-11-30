@@ -1,6 +1,7 @@
 package pdes.unq.com.APC.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,9 +20,11 @@ import pdes.unq.com.APC.exceptions.ProductPurchaseNotFoundException;
 import pdes.unq.com.APC.external_services.MercadoLibreService;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseResponse;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseUsersResponse;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductResponse;
 import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
 import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
+import pdes.unq.com.APC.interfaces.products.ProductFavoriteUsersResponse;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
 import pdes.unq.com.APC.repositories.ProductCommentRepository;
 import pdes.unq.com.APC.repositories.ProductFavoriteRepository;
@@ -145,12 +148,61 @@ public class ProductService {
                 .collect(Collectors.toList());
    }
 
+   public List<ProductPurchaseUsersResponse> getAllPurchasesPorductsByUsers(){
+      List<ProductPurchase> results = productPurchaseRepository.findAll();
+
+      Map<UUID, List<ProductPurchase>> groupedByUser = results.stream()
+      .collect(Collectors.groupingBy(purchase -> purchase.getUser().getId()));
+  
+      return groupedByUser.entrySet().stream()
+      .map(entry -> {
+          // Mapea cada ProductPurchase a ProductPurchaseResponse
+          List<ProductPurchaseResponse> productPurchases = entry.getValue().stream()
+              .map(this::mapToResponse)
+              .collect(Collectors.toList());
+
+          User user = entry.getValue().get(0).getUser(); 
+
+          return new ProductPurchaseUsersResponse(
+              user.getUsername(), 
+              user.getEmail(), 
+              productPurchases
+          );
+      })
+      .collect(Collectors.toList());
+   }
+
    public List<ProductResponse> getFavoritesProductsByUserId(String userId){
       List<ProductFavorite> res = productFavoriteRepository.findByUserId(UUID.fromString(userId));
 
       return res.stream()
                   .map(this::MapProductFavoriteToProductResponse)
                   .collect(Collectors.toList());
+   }
+
+
+   public List<ProductFavoriteUsersResponse> getAllFavoritesProductsByUsers(){
+      List<ProductFavorite> results = productFavoriteRepository.findAll();
+
+      Map<UUID, List<ProductFavorite>> groupedByUser = results.stream()
+      .collect(Collectors.groupingBy(purchase -> purchase.getUser().getId()));
+  
+      return groupedByUser.entrySet().stream()
+      .map(entry -> {
+          // Mapea cada ProductPurchase a ProductPurchaseResponse
+          List<ProductResponse> productsFavorites = entry.getValue().stream()
+              .map(this::MapProductFavoriteToProductResponse)
+              .collect(Collectors.toList());
+
+          User user = entry.getValue().get(0).getUser(); 
+
+          return new ProductFavoriteUsersResponse(
+              user.getUsername(), 
+              user.getEmail(), 
+              productsFavorites
+          );
+      })
+      .collect(Collectors.toList());
    }
 
    /**
@@ -216,6 +268,7 @@ public class ProductService {
    return mapProductToProductResponse(product);
   }
 
+
   /**
    * Metodo que mapea un Product entity de la base de datos a un objeto de forma ProductReponse
    * @param product
@@ -235,4 +288,6 @@ public class ProductService {
 
    return result;
   }
+
+
 }

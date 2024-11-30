@@ -14,29 +14,61 @@ services:
     networks:
       - app-network
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: springboot-app
+  back:
+    image: dockergdasilva/apc-springboot-app:v1.0.4 
     ports:
       - "8080:8080"
+    entrypoint: ["./wait-for-it.sh", "db:5432", "--", "java", "-jar", "app.jar"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: pass
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      # spring.datasource.url: ${SPRING_DATASOURCE_URL}
+      # spring.datasource.username: ${SPRING_DATASOURCE_USERNAME}
+      # spring.datasource.password: ${SPRING_DATASOURCE_PASSWORD}
+      # spring.jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
       mercadolibre.api.token: ${MERCADO_LIBRE_TOKEN}
       mercadolibre.api.base-url: ${MERCADO_LIBRE_BASE_URL}
       mercadolibre.api.client_id: ${MERCADO_LIBRE_CLIENT_ID}
       mercadolibre.api.client_secret: ${MERCADO_LIBRE_CLIENT_SECRET}
-
+    env_file:
+    - .env
     depends_on:
       - db
-    networks:
-      - app-network
+  
+  front:
+    image: dockergdasilva/da-silva-romero-pdes-front:v1.0.0 
+    ports:
+      - "3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8080/api
+    depends_on:
+      - db
+      - back
 
 volumes:
   postgres-data:
 
 networks:
   app-network:
+
+
+
+    # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: springboot-app
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+  #     SPRING_DATASOURCE_USERNAME: user
+  #     SPRING_DATASOURCE_PASSWORD: pass
+  #     mercadolibre.api.token: ${MERCADO_LIBRE_TOKEN}
+  #     mercadolibre.api.base-url: ${MERCADO_LIBRE_BASE_URL}
+  #     mercadolibre.api.client_id: ${MERCADO_LIBRE_CLIENT_ID}
+  #     mercadolibre.api.client_secret: ${MERCADO_LIBRE_CLIENT_SECRET}
+#     networks:
+#       - app-network

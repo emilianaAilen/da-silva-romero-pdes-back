@@ -29,9 +29,9 @@ jobs:
           MERCADO_LIBRE_BASE_URL: ${{ vars.MERCADO_LIBRE_BASE_URL }}
         run: |
           docker build \
-            --build-arg SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres
-            --build-arg SPRING_DATASOURCE_USERNAME=user
-            --build-arg SPRING_DATASOURCE_PASSWORD=pass
+            --build-arg SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres \
+            --build-arg SPRING_DATASOURCE_USERNAME=user \
+            --build-arg SPRING_DATASOURCE_PASSWORD=pass \
             --build-arg MERCADO_LIBRE_TOKEN=${{ secrets.MERCADO_LIBRE_TOKEN }} \
             --build-arg MERCADO_LIBRE_BASE_URL=${{ vars.MERCADO_LIBRE_BASE_URL }} \
             --build-arg MERCADO_LIBRE_CLIENT_ID=${{ secrets.MERCADO_LIBRE_CLIENT_ID }} \

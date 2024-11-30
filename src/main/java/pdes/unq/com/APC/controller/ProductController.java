@@ -1,6 +1,7 @@
 package pdes.unq.com.APC.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import jakarta.validation.constraints.Size;
 import pdes.unq.com.APC.dtos.mercadoLibre.Category;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductResponse;
+import pdes.unq.com.APC.interfaces.products.ProductCommentResponse;
 import pdes.unq.com.APC.interfaces.products.ProductFavoriteRequest;
 import pdes.unq.com.APC.interfaces.products.ProductFavoriteUsersResponse;
 import pdes.unq.com.APC.interfaces.products.ProductsResponse;
@@ -166,6 +168,31 @@ public class ProductController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+
+    @Operation(summary = "Get all comments by product")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "List of all comments from product retrieved successfully",
+            content = @Content(
+                mediaType = "application/json",
+                array = @ArraySchema(schema = @Schema(implementation = ProductCommentResponse.class))
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500", 
+            description = "Internal server error", 
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(example = "{\"status\":\"internal_error\",\"message\":\"Unexpected error occurred\"}")
+            )
+        )
+    })
+    @GetMapping("/{productId}/comments")
+    public ResponseEntity<?> getCommentsByProductId(@PathVariable UUID productId) {
+        List<ProductCommentResponse> res = productService.getCommentsByProductId(productId);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
 
     private User getUserFromContext(){
         User userDetails = null;

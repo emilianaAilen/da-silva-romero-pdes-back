@@ -206,7 +206,7 @@ public class ProductService {
   }
 
   public List<ProductCommentResponse> getCommentsByProductId(UUID productId) {
-    List<ProductComment> productComments = productCommentRepository.findByProductId(productId);
+    List<ProductComment> productComments = productCommentRepository.findByProductPurchase_Product_Id(productId);
 
     return productComments.stream()
         .map(this::MapProductCommentToProductCommentResponse)

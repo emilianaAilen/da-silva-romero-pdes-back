@@ -1,5 +1,7 @@
 package pdes.unq.com.APC.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,6 +99,12 @@ public class UserController {
     @RequestBody UserRequest updatedUser) {
        User res = userService.updateUser(email,updatedUser);
        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/admin/all")
+    public ResponseEntity<?> getAllRegistredUsers(){
+        List<UserResponse> users = userService.getAllUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
     
 }

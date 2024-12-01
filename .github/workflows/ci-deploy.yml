@@ -6,13 +6,14 @@ on:
       - 'v*' # Ejecuta el flujo cuando se crea un tag que comienza con "v" (por ejemplo, v1.0.0)
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
-    environment: dev
-    
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -20,22 +21,18 @@ jobs:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push Docker image
-        env:
-          MERCADO_LIBRE_TOKEN: ${{ secrets.MERCADO_LIBRE_TOKEN }}
-          MERCADO_LIBRE_BASE_URL: ${{ vars.MERCADO_LIBRE_BASE_URL }}
+      - name: Build the Docker image
         run: |
-          docker build \
-            --build-arg MERCADO_LIBRE_TOKEN=${{ secrets.MERCADO_LIBRE_TOKEN }} \
-            --build-arg MERCADO_LIBRE_BASE_URL=${{ vars.MERCADO_LIBRE_BASE_URL }} \
-            --build-arg MERCADO_LIBRE_CLIENT_ID=${{ secrets.MERCADO_LIBRE_CLIENT_ID }} \
-            --build-arg MERCADO_LIBRE_CLIENT_SECRET=${{ secrets.MERCADO_LIBRE_CLIENT_SECRET }} \
-            -t ${{ vars.DOCKER_USERNAME }}/apc-springboot-app:${{ github.ref_name }} .
-          
-          docker push ${{ vars.DOCKER_USERNAME }}/apc-springboot-app:${{ github.ref_name }}
-          
-      - name: Logout from Docker Hub
-        run: docker logout
+          docker build -t ${{ vars.DOCKER_USERNAME }}/springboot-app:${{ github.sha }} .
+        
+      - name: Push the Docker image to Docker Hub
+        run: |
+          docker push ${{ vars.DOCKER_USERNAME }}/springboot-app:${{ github.sha }}
+
+      - name: Tag image with release version
+        run: |
+          docker tag ${{ vars.DOCKER_USERNAME }}/springboot-app:${{ github.sha }} ${{ vars.DOCKER_USERNAME }}/springboot-app:${{ github.ref_name }}
+
+      - name: Push the release version image to Docker Hub
+        run: |
+          docker push ${{ vars.DOCKER_USERNAME }}/springboot-app:${{ github.ref_name }}

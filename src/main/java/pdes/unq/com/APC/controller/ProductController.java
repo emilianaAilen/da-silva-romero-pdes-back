@@ -194,6 +194,23 @@ public class ProductController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get Tops Favorites Products")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "get top Favorites products", 
+                    content = @Content(
+                        mediaType = "application/json",
+                        array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))
+                    )),
+        @ApiResponse(responseCode = "500", description = "Internal server error", 
+                    content = @Content(mediaType = "application/json", 
+                                        examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
+    })
+    @GetMapping("/favorites/admin/top")
+    public ResponseEntity<?> getTopFavoritesProducts(@RequestParam(value = "limit", defaultValue = "10") int limit){
+        List<ProductResponse> products = productService.getTopFavoritesProducts(limit);
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    } 
+
     private User getUserFromContext(){
         User userDetails = null;
         var authentication = SecurityContextHolder.getContext().getAuthentication();

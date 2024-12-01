@@ -6,10 +6,10 @@ on:
       - 'v*' # Ejecuta el flujo cuando se crea un tag que comienza con "v" (por ejemplo, v1.0.0)
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     environment: dev
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

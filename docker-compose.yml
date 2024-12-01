@@ -15,9 +15,7 @@ services:
       - app-network
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: dockergdasilva/springboot-app:v1.0.8
     container_name: springboot-app
     ports:
       - "8080:8080"
@@ -29,9 +27,18 @@ services:
       mercadolibre.api.base-url: ${MERCADO_LIBRE_BASE_URL}
       mercadolibre.api.client_id: ${MERCADO_LIBRE_CLIENT_ID}
       mercadolibre.api.client_secret: ${MERCADO_LIBRE_CLIENT_SECRET}
-
     depends_on:
       - db
+    networks:
+      - app-network
+  
+  apc:
+    image: dockergdasilva/da-silva-romero-pdes-front:v1.0.0
+    container_name: frontend-app
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_BACKEND_URL: http://app:8080/api
     networks:
       - app-network
 

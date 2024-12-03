@@ -122,6 +122,7 @@ public class UserService {
 
     private UserResponse MapUserToUserResponse( User user) {
         UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId().toString());
         userResponse.setCreated_at(user.getCreatedAt());
         userResponse.setEmail(user.getEmail());
         userResponse.setUsername(user.getUsername());

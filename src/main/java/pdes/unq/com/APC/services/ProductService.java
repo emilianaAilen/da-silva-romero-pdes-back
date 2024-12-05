@@ -1,7 +1,9 @@
 package pdes.unq.com.APC.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.UUID;
@@ -213,6 +215,16 @@ public class ProductService {
         .collect(Collectors.toList());
   }
 
+  public List<ProductResponse> getTopFavoritesProducts(int limit){
+    List<Object[]> products = productFavoriteRepository.findTopFavoriteProducts(limit);
+    return products.stream().map(this::mapObjectProductToProductResponse).collect(Collectors.toList());
+  }
+
+  public List<ProductResponse> getTopPurchasesProducts(int limit){
+    List<Object[]> products = productPurchaseRepository.finTopPurchasesProducts(limit);
+    return products.stream().map(this::mapObjectProductToProductResponse).collect(Collectors.toList());
+  }
+
   /**
    * Este metodo se encarga de obtener el producto de la base de datos, si no lo
    * encuetra va por el servicio externo para traer la informacion necesaria para
@@ -234,6 +246,13 @@ public class ProductService {
     return productToReturn.get();
   }
 
+
+  /**
+   * Este metodo se encarga de obtener un producPurchase a partir de su ID.
+   * Si el id es incorrecto o no hay una productPurchase con ese ID en al base de datos, lanzamos un error conocido como ProductPurchaseNotFoundException
+   * @param productPurchaseId
+   * @return ProductPurchase
+   */
   private ProductPurchase getProductPurchaseById(String productPurchaseId) {
     try {
       UUID uuid = UUID.fromString(productPurchaseId);
@@ -319,6 +338,25 @@ public class ProductService {
     result.setPrice(priceStr);
     result.setId(product.getId().toString());
     result.setUrl_image(product.getUrl());
+
+    return result;
+  }
+
+  /**
+   * Este metodo se encarga de mapear el resultado Object devuelto por la consulta al reposutory y convertirlo a un ProductResponse
+   * @param objectProduct
+   * @return ProductResponse
+   */
+  private ProductResponse mapObjectProductToProductResponse( Object[] objectProduct){
+    ProductResponse result = new ProductResponse();
+
+    result.setId(objectProduct[0].toString());
+    result.setName(objectProduct[1].toString());
+    result.setDescription(objectProduct[2].toString());
+    result.setCategory(objectProduct[3].toString());
+    result.setPrice(objectProduct[4].toString());
+    result.setExternal_item_id(objectProduct[5].toString());
+    result.setUrl_image(objectProduct[6].toString());
 
     return result;
   }

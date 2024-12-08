@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,6 +21,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseResponse;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseUsersResponse;
+import pdes.unq.com.APC.interfaces.product_purchases.ProductResponse;
 import pdes.unq.com.APC.interfaces.products.ProductCommentRequest;
 import pdes.unq.com.APC.services.ProductService;
 
@@ -70,7 +73,7 @@ public class ProductPurchaseController {
 
     @Operation(summary = "Get products purchases by user id")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "comment product created successfully", 
+        @ApiResponse(responseCode = "200", description = "get products purchases by user id successfully", 
                     content = @Content(
                         mediaType = "application/json",
                         array = @ArraySchema(schema = @Schema(implementation = ProductPurchaseResponse.class))
@@ -84,5 +87,41 @@ public class ProductPurchaseController {
         List<ProductPurchaseResponse> res = productService.getProductPurchasesFromUserId(userId);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
-    
+
+
+    @Operation(summary = "Get all products purchases by users")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "get alls purchases products by users successfully", 
+                    content = @Content(
+                        mediaType = "application/json",
+                        array = @ArraySchema(schema = @Schema(implementation = ProductPurchaseUsersResponse.class))
+                    )),
+        @ApiResponse(responseCode = "500", description = "Internal server error", 
+                    content = @Content(mediaType = "application/json", 
+                                        examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
+    })
+    @GetMapping("/admin")
+    public ResponseEntity<?> getAllProductPurchases(){
+        List<ProductPurchaseUsersResponse> res = productService.getAllPurchasesPorductsByUsers();
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }    
+
+    @Operation(summary = "Get Tops Purchases Products")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "get top purchases products", 
+                    content = @Content(
+                        mediaType = "application/json",
+                        array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))
+                    )),
+        @ApiResponse(responseCode = "500", description = "Internal server error", 
+                    content = @Content(mediaType = "application/json", 
+                                        examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
+    })
+    @GetMapping("/admin/top")
+    public ResponseEntity<?> getTopPurchasesProducts(@RequestParam(value = "limit", defaultValue = "10") int limit){
+        List<ProductResponse> res = productService.getTopPurchasesProducts(limit);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    } 
+
+
 }

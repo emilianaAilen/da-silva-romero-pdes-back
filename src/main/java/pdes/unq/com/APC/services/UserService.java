@@ -2,6 +2,8 @@ package pdes.unq.com.APC.services;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,4 +112,20 @@ public class UserService {
             throw new RuntimeException("Error getting user by email: " + e.getMessage(), e);
         }
     }
+
+    public List<UserResponse> getAllUsers(){
+        List<User> users = userRepository.findAll();
+        return users.stream()
+            .map(this::MapUserToUserResponse)
+            .collect(Collectors.toList());
+    }
+
+    private UserResponse MapUserToUserResponse( User user) {
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId().toString());
+        userResponse.setCreated_at(user.getCreatedAt());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setUsername(user.getUsername());
+        return userResponse;
+    } 
 }

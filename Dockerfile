@@ -41,5 +41,7 @@ ENV SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
 ENV SPRING_DATASOURCE_USERNAME=user
 ENV SPRING_DATASOURCE_PASSWORD=pass
 
+ENV SPRING_PROFILES_ACTIVE=dev 
+
 # Ejecutamos el entrypoirnt con los comandos para levantar la APP
 ENTRYPOINT ["java", "-jar", "app.jar"]

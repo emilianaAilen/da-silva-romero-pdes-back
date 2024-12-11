@@ -43,5 +43,7 @@ ENV SPRING_DATASOURCE_PASSWORD=QLklRaEHrKfReHYweTUzTQoTNbPYOHIJ
 
 ENV SPRING_PROFILES_ACTIVE=dev 
 
+ENV SPRING_PROFILES_ACTIVE=dev 
+
 # Ejecutamos el entrypoirnt con los comandos para levantar la APP
 ENTRYPOINT ["java", "-jar", "app.jar"]

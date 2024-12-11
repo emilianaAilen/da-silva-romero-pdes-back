@@ -15,7 +15,7 @@ public class Product {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 1000)
     private String name;
 
     @Column(name = "description", nullable = false, length = 3000)

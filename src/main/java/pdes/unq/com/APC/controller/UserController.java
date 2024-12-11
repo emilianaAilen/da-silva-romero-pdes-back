@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import pdes.unq.com.APC.entities.User;
-import pdes.unq.com.APC.interfaces.product_purchases.ProductResponse;
 import pdes.unq.com.APC.interfaces.user.UserPurchaseResponse;
 import pdes.unq.com.APC.interfaces.user.UserRequest;
 import pdes.unq.com.APC.interfaces.user.UserResponse;

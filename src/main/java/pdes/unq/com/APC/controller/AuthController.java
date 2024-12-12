@@ -48,9 +48,10 @@ public class AuthController {
       String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
 
       Cookie authCookie = new Cookie("authToken", token);
-      // authCookie.setSecure(true); Descomentar en prod
+      authCookie.setSecure(true);
       authCookie.setPath("/");
       authCookie.setMaxAge(12 * 60 * 60);
+      authCookie.setAttribute("SameSite", "None");      
       response.addCookie(authCookie);
 
       return ResponseEntity.ok(new LoginResponse(token));

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
-    // Métodos personalizados de consulta pueden ser añadidos aquí
     User findByUsername(String username);
     User findByEmail(String email);
         @Query(value = """   

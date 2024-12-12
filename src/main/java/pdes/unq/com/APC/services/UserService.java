@@ -143,8 +143,10 @@ public class UserService {
      */
     private UserPurchaseResponse mapObjectToUserPurchaseResponse(Object[] object){
         UserPurchaseResponse res = new UserPurchaseResponse();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        LocalDateTime localDateTime = LocalDateTime.parse(object[3].toString(), formatter);
+
+        String dateTimeStr = object[3].toString().split("\\.")[0]; // Elimina los milisegundos
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeStr, formatter);
  
         res.setId(object[0].toString());
         res.setUsername(object[1].toString());

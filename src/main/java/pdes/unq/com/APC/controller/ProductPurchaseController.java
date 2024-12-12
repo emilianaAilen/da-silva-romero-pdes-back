@@ -124,7 +124,7 @@ public class ProductPurchaseController {
                                         examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
     })
     @GetMapping("/admin/top")
-    public ResponseEntity<?> getTopPurchasesProducts(@RequestParam(value = "limit", defaultValue = "10") int limit){
+    public ResponseEntity<?> getTopPurchasesProducts(@RequestParam(value = "limit", defaultValue = "5") int limit){
         List<ProductResponse> res = productService.getTopPurchasesProducts(limit);
         return new ResponseEntity<>(res, HttpStatus.OK);
     } 

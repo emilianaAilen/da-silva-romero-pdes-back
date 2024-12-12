@@ -206,7 +206,7 @@ public class ProductController {
                                         examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
     })
     @GetMapping("/favorites/admin/top")
-    public ResponseEntity<?> getTopFavoritesProducts(@RequestParam(value = "limit", defaultValue = "10") int limit){
+    public ResponseEntity<?> getTopFavoritesProducts(@RequestParam(value = "limit", defaultValue = "5") int limit){
         List<ProductResponse> products = productService.getTopFavoritesProducts(limit);
         return new ResponseEntity<>(products, HttpStatus.OK);
     } 

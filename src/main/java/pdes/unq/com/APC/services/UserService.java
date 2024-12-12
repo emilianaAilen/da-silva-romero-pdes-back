@@ -4,12 +4,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.exceptions.UserNotFoundException;
@@ -24,19 +24,26 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     // Método para crear un nuevo usuario
     public UserResponse validateAndSaveUser(UserRequest userRequest) {
         System.out.println("User - response: validate");
         User userToSave = new User();
         UserResponse userResponse = new UserResponse();
+        String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
 
         userToSave.setEmail(userRequest.getEmail());
         userToSave.setUsername(userRequest.getUsername());
-        userToSave.setPassword(userRequest.getPassword());
+        userToSave.setPassword(encryptedPassword);
         userToSave.setRoleType(userRequest.getRoleType());
         try {
             User savedUser = userRepository.save(userToSave);
             userResponse.setId(savedUser.getId().toString());
+            userResponse.setUsername(savedUser.getUsername());
+            userResponse.setEmail(savedUser.getEmail());
+            userResponse.setCreated_at(savedUser.getCreatedAt());
         } catch (DataAccessException e) {
             System.out.println("creating user Error: " + e.getMessage());
             throw new RuntimeException("Error al guardar el usuario: " + e.getMessage(), e);
@@ -75,7 +82,8 @@ public class UserService {
         }
 
         if (userRequest.getPassword() != null) {
-            existingUser.setPassword(userRequest.getPassword());
+            String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
+            existingUser.setPassword(encryptedPassword);
         }
 
         if (userRequest.getRoleType() != null) {

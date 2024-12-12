@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.interfaces.auth.LoginRequest;
 import pdes.unq.com.APC.interfaces.auth.LoginResponse;
+import pdes.unq.com.APC.interfaces.auth.SessionResponse;
 import pdes.unq.com.APC.services.AuthService;
 
 @RestController
@@ -81,7 +82,15 @@ public class AuthController {
 
     try {
       User userDetails = authService.validateToken(token);
-      return ResponseEntity.ok(userDetails);
+      SessionResponse response = new SessionResponse();
+      response.setId(userDetails.getId().toString());
+      response.setEmail(userDetails.getEmail());
+      response.setUsername(userDetails.getUsername());
+      response.setRoleType(userDetails.getRoleType());
+      response.setCreatedAt(userDetails.getCreatedAt());
+      response.setUpdatedAt(userDetails.getUpdatedAt());
+      
+      return ResponseEntity.ok(response);
     } catch (JwtException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
     }

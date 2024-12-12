@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseRequest;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseResponse;
 import pdes.unq.com.APC.interfaces.product_purchases.ProductPurchaseUsersResponse;
@@ -47,7 +49,10 @@ public class ProductPurchaseController {
     })
     @PostMapping("/{productId}")
     public ResponseEntity<?> purchaseProduct(@PathVariable("productId") String productId, @RequestBody ProductPurchaseRequest purchaseRequest){
+        User user = getUserFromContext();
+
         purchaseRequest.setProductID(productId);
+        purchaseRequest.setUserID(user.getId().toString());
         productService.purchaseProduct(purchaseRequest);
         return new ResponseEntity<>("purchase product created successfully", HttpStatus.OK);
     }
@@ -82,9 +87,10 @@ public class ProductPurchaseController {
                     content = @Content(mediaType = "application/json", 
                                         examples = @ExampleObject(value = "{\"status\":\"Internal_error\",\"message\":\"Error message\"}")))
     })
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getProductPurchaseByUserId(@PathVariable("userId") String userId){
-        List<ProductPurchaseResponse> res = productService.getProductPurchasesFromUserId(userId);
+    @GetMapping("")
+    public ResponseEntity<?> getProductPurchaseByUserId(){
+        User user = getUserFromContext();
+        List<ProductPurchaseResponse> res = productService.getProductPurchasesFromUserId(user.getId().toString());
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
@@ -123,5 +129,13 @@ public class ProductPurchaseController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     } 
 
+    private User getUserFromContext(){
+        User userDetails = null;
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            userDetails  = (User) authentication.getPrincipal();
+        }
+        return  userDetails;
+    }
 
 }

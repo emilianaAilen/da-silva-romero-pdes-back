@@ -1,6 +1,7 @@
 package pdes.unq.com.APC.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.JwtException;
@@ -15,6 +16,9 @@ public class AuthService {
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+    private PasswordEncoder passwordEncoder;
+
   private final JwtService jwtService;
 
   public AuthService(JwtService jwtService) {
@@ -28,8 +32,7 @@ public class AuthService {
       throw new UserNotFoundException("User with email " + email + " not found.");
     }
 
-    // To do: implementar encriptacion de password
-    if (user.getPassword().equals(password)) {
+    if (passwordEncoder.matches(password, user.getPassword())) {
       return jwtService.generateToken(user);
     }
 
@@ -39,14 +42,14 @@ public class AuthService {
   public User validateToken(String token) {
     try {
       Map<String, Object> claims = jwtService.validateToken(token);
-      String email = (String) claims.get("email"); // O el campo que uses en el token
+      String email = (String) claims.get("email");
       User user = userRepository.findByEmail(email);
 
       if (user == null) {
-          throw new UserNotFoundException("User not found for token");
+        throw new UserNotFoundException("User not found for token");
       }
 
-      return user; // Devuelve el usuario autenticado
+      return user;
     } catch (JwtException e) {
       throw new RuntimeException("Invalid token", e);
     }

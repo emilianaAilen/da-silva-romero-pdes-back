@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import pdes.unq.com.APC.entities.User;
 import pdes.unq.com.APC.exceptions.UserNotFoundException;
 import pdes.unq.com.APC.interfaces.user.UserRequest;
@@ -22,6 +24,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
@@ -49,6 +54,7 @@ public class UserServiceTest {
     @Test
     public void testCreateUser() {
         when(userRepository.save(any(User.class))).thenReturn(user);
+        when(passwordEncoder.encode("password")).thenReturn("encryptedPassword");
 
         UserResponse createdUser = userService.validateAndSaveUser(userRequest);
 
@@ -60,6 +66,7 @@ public class UserServiceTest {
     @Test
     public void testCreateUserThrowsExceptionOnSaveError() {
         when(userRepository.save(any(User.class))).thenThrow(new RuntimeException("Database error"));
+        when(passwordEncoder.encode("password")).thenReturn("encryptedPassword");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             userService.validateAndSaveUser(userRequest);
@@ -72,6 +79,7 @@ public class UserServiceTest {
     public void testUpdateUser() {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
+        when(passwordEncoder.encode("password")).thenReturn("encryptedPassword");
 
         User updatedUser = userService.updateUser(user.getEmail(), userRequest);
 
